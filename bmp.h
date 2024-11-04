@@ -5,10 +5,10 @@
 
 typedef struct
 {
-    bmpHEADER      header;
-    bmpINFOHEADER  infoHeader;
-    PALETTE        palette;
-    unsigned char* data;
+    BITMAPFILEHEADER header;
+    BITMAPINFOHEADER infoHeader;
+    PALETTE          palette;
+    unsigned char*   data;
 } bmp_HL;
 
 // 从文件中读取bmp图像，返回一个bmp_HL结构体
@@ -27,4 +27,4 @@ void bmpDelete(bmp_HL* bmp);
 bmp_HL bmp_24to8_gray(bmp_HL bmp);
 
 // 将8位灰度图像转换为反色8位灰度图像
-bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp);
+bmp_HL bmp_8_grayto8_gray_invert(bmp_HL bmp);

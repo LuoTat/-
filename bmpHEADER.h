@@ -2,12 +2,12 @@
 
 typedef struct
 {
-    unsigned short bfType __attribute__((packed));         // 文件类型
-    unsigned int   bfSize;                                 // 文件大小（包括文件头）
-    unsigned short bfReserved1 __attribute__((packed));    // 保留字1
-    unsigned short bfReserved2 __attribute__((packed));    // 保留字2
-    unsigned int   bfOffBits;                              // 从文件头到实际位图数据的偏移字节数
-} bmpHEADER;
+    unsigned short bfType;         // 文件类型
+    unsigned int   bfSize;         // 文件大小（包括文件头）
+    unsigned short bfReserved1;    // 保留字1
+    unsigned short bfReserved2;    // 保留字2
+    unsigned int   bfOffBits;      // 从文件头到实际位图数据的偏移字节数
+} BITMAPFILEHEADER;
 
 #pragma pack(pop)
 
@@ -24,7 +24,7 @@ typedef struct
     int            biYPelsPerMeter;    // 垂直分辨率
     unsigned int   biClrUsed;          // 使用的颜色数
     unsigned int   biClrImportant;     // 重要的颜色数
-} bmpINFOHEADER;
+} BITMAPINFOHEADER;
 
 typedef struct
 {

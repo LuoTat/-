@@ -11,8 +11,8 @@ bmp_HL bmpRead(const char* filename)
         printf("Error: Cannot open file %s\n", filename);
         exit(1);
     }
-    fread(&bmp.header, sizeof(bmpHEADER), 1, file);
-    fread(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
+    fread(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fread(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
 
     // 判断是否有调色板
     if (bmp.infoHeader.biBitCount == 24) bmp.palette = NULL;
@@ -36,8 +36,8 @@ void bmpWrite(const char* filename, bmp_HL bmp)
         printf("Error: Cannot open file %s\n", filename);
         exit(1);
     }
-    fwrite(&bmp.header, sizeof(bmpHEADER), 1, file);
-    fwrite(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
+    fwrite(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
     if (bmp.palette != NULL)
     {
         unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
@@ -109,17 +109,17 @@ bmp_HL bmp_24to8_gray(bmp_HL bmp)
         data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
     }
 
-    bmp.header.bfSize          = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
-    bmp.header.bfOffBits       = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
-    bmp.infoHeader.biBitCount  = 8;                                                                                       // 更新位数
-    bmp.infoHeader.biSizeImage = dataSize;                                                                                // 更新图像数据区大小
-    bmp.infoHeader.biClrUsed   = 0;                                                                                       // 更新调色板大小
-    bmp.palette                = palette;                                                                                 // 更新调色板
-    bmp.data                   = data;                                                                                    // 更新数据
+    bmp.header.bfSize          = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
+    bmp.header.bfOffBits       = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
+    bmp.infoHeader.biBitCount  = 8;                                                                                                 // 更新位数
+    bmp.infoHeader.biSizeImage = dataSize;                                                                                          // 更新图像数据区大小
+    bmp.infoHeader.biClrUsed   = 0;                                                                                                 // 更新调色板大小
+    bmp.palette                = palette;                                                                                           // 更新调色板
+    bmp.data                   = data;                                                                                              // 更新数据
     return bmp;
 }
 
-bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
+bmp_HL bmp_8_grayto8_gray_invert(bmp_HL bmp)
 {
     if (bmp.infoHeader.biBitCount != 8)
     {
@@ -128,16 +128,9 @@ bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
     }
 
     // 复制bmp图像
-    bmp                      = bmpCopy(bmp);
+    bmp = bmpCopy(bmp);
 
-    // 修改调色板为反色调色板
-    unsigned int paletteSize = 256;
-    for (int i = 0; i < paletteSize; i++)
-    {
-        bmp.palette[i].rgbBlue     = 255 - i;
-        bmp.palette[i].rgbGreen    = 255 - i;
-        bmp.palette[i].rgbRed      = 255 - i;
-        bmp.palette[i].rgbReserved = 0;
-    }
+    // 修改图像数据区
+    for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) bmp.data[i] = 255 - bmp.data[i];
     return bmp;
 }
