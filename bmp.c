@@ -15,19 +15,129 @@ bmp_HL bmpRead(const char* filename)
     fread(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
 
     // 判断是否有调色板
-    if (bmp.infoHeader.biBitCount == 24)    // 24位真彩色图像没有调色板
-    {
-        bmp.palette = NULL;
-    }
+    if (bmp.infoHeader.biBitCount == 24) bmp.palette = NULL;
     else
     {
-        // 计算调色板大小
-        unsigned int paletteSize = bmp.infoHeader.biClrUsed ? bmp.infoHeader.biClrUsed : 1 << bmp.infoHeader.biBitCount;
+        unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
         bmp.palette              = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
         fread(bmp.palette, sizeof(RGBQUAD), paletteSize, file);
     }
     bmp.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
     fread(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
     fclose(file);
+    return bmp;
+}
+
+void bmpWrite(const char* filename, bmp_HL bmp)
+{
+    FILE* file = fopen(filename, "wb");
+    if (file == NULL)
+    {
+        printf("Error: Cannot open file %s\n", filename);
+        exit(1);
+    }
+    fwrite(&bmp.header, sizeof(bmpHEADER), 1, file);
+    fwrite(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
+    if (bmp.palette != NULL)
+    {
+        unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
+        fwrite(bmp.palette, sizeof(RGBQUAD), paletteSize, file);
+    }
+    fwrite(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
+    fclose(file);
+}
+
+bmp_HL bmpCopy(bmp_HL bmp)
+{
+    bmp_HL copy;
+    copy.header     = bmp.header;
+    copy.infoHeader = bmp.infoHeader;
+    if (bmp.palette != NULL)
+    {
+        unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
+        copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
+        for (int i = 0; i < paletteSize; i++) copy.palette[i] = bmp.palette[i];
+    }
+    copy.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
+    for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) copy.data[i] = bmp.data[i];
+    return copy;
+}
+
+void bmpDelete(bmp_HL* bmp)
+{
+    free(bmp->palette);
+    free(bmp->data);
+    bmp->palette = NULL;
+    bmp->data    = NULL;
+}
+
+// 将(b, g, r)转换为灰度值
+inline static unsigned char rgbtogray(unsigned char b, unsigned char g, unsigned char r)
+{
+    return (unsigned char)(0.299 * r + 0.587 * g + 0.114 * b);
+}
+
+bmp_HL bmp_24to8_gray(bmp_HL bmp)
+{
+    if (bmp.infoHeader.biBitCount != 24)
+    {
+        printf("Error: Only 24-bit true color image can be converted to 8-bit grayscale image\n");
+        exit(1);
+    }
+
+    // 复制bmp图像
+    bmp                      = bmpCopy(bmp);
+
+    // 创建256色灰度调色板
+    unsigned int paletteSize = 256;
+    PALETTE      palette     = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
+    for (int i = 0; i < paletteSize; i++)
+    {
+        palette[i].rgbBlue     = i;
+        palette[i].rgbGreen    = i;
+        palette[i].rgbRed      = i;
+        palette[i].rgbReserved = 0;
+    }
+
+    // 创建8位灰度图像数据
+    unsigned int   dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
+    unsigned char* data     = (unsigned char*)malloc(dataSize);
+
+    for (int i = 0; i < dataSize; i++)
+    {
+        // 每个像素点的调色板索引值为灰度值
+        data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
+    }
+
+    bmp.header.bfSize          = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
+    bmp.header.bfOffBits       = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
+    bmp.infoHeader.biBitCount  = 8;                                                                                       // 更新位数
+    bmp.infoHeader.biSizeImage = dataSize;                                                                                // 更新图像数据区大小
+    bmp.infoHeader.biClrUsed   = 0;                                                                                       // 更新调色板大小
+    bmp.palette                = palette;                                                                                 // 更新调色板
+    bmp.data                   = data;                                                                                    // 更新数据
+    return bmp;
+}
+
+bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
+{
+    if (bmp.infoHeader.biBitCount != 8)
+    {
+        printf("Error: Only 8-bit grayscale image can be converted to inverted 8-bit grayscale image\n");
+        exit(1);
+    }
+
+    // 复制bmp图像
+    bmp                      = bmpCopy(bmp);
+
+    // 修改调色板为反色调色板
+    unsigned int paletteSize = 256;
+    for (int i = 0; i < paletteSize; i++)
+    {
+        bmp.palette[i].rgbBlue     = 255 - i;
+        bmp.palette[i].rgbGreen    = 255 - i;
+        bmp.palette[i].rgbRed      = 255 - i;
+        bmp.palette[i].rgbReserved = 0;
+    }
     return bmp;
 }
