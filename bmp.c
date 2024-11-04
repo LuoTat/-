@@ -1,6 +1,7 @@
 #include "bmp.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 bmp_HL bmpRead(const char* filename)
 {
@@ -11,8 +12,8 @@ bmp_HL bmpRead(const char* filename)
         printf("Error: Cannot open file %s\n", filename);
         exit(1);
     }
-    fread(&bmp.header, sizeof(bmpHEADER), 1, file);
-    fread(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
+    fread(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fread(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
 
     // 判断是否有调色板
     if (bmp.infoHeader.biBitCount == 24) bmp.palette = NULL;
@@ -22,8 +23,11 @@ bmp_HL bmpRead(const char* filename)
         bmp.palette              = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
         fread(bmp.palette, sizeof(RGBQUAD), paletteSize, file);
     }
-    bmp.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
-    fread(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
+
+    int Bytes = LineByte(bmp.infoHeader.biWidth, bmp.infoHeader.biBitCount) * bmp.infoHeader.biHeight;
+    bmp.data = (BYTE*)malloc(Bytes);
+
+    fread(bmp.data, Bytes, 1, file);
     fclose(file);
     return bmp;
 }
@@ -36,31 +40,16 @@ void bmpWrite(const char* filename, bmp_HL bmp)
         printf("Error: Cannot open file %s\n", filename);
         exit(1);
     }
-    fwrite(&bmp.header, sizeof(bmpHEADER), 1, file);
-    fwrite(&bmp.infoHeader, sizeof(bmpINFOHEADER), 1, file);
+    fwrite(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
     if (bmp.palette != NULL)
     {
         unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
         fwrite(bmp.palette, sizeof(RGBQUAD), paletteSize, file);
     }
-    fwrite(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
+    int Bytes = LineByte(bmp.infoHeader.biWidth, bmp.infoHeader.biBitCount) * bmp.infoHeader.biHeight;
+    fwrite(bmp.data, Bytes, 1, file);
     fclose(file);
-}
-
-bmp_HL bmpCopy(bmp_HL bmp)
-{
-    bmp_HL copy;
-    copy.header     = bmp.header;
-    copy.infoHeader = bmp.infoHeader;
-    if (bmp.palette != NULL)
-    {
-        unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
-        copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
-        for (int i = 0; i < paletteSize; i++) copy.palette[i] = bmp.palette[i];
-    }
-    copy.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
-    for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) copy.data[i] = bmp.data[i];
-    return copy;
 }
 
 void bmpDelete(bmp_HL* bmp)
@@ -72,9 +61,9 @@ void bmpDelete(bmp_HL* bmp)
 }
 
 // 将(b, g, r)转换为灰度值
-inline static unsigned char rgbtogray(unsigned char b, unsigned char g, unsigned char r)
+inline static BYTE gray(BYTE b, BYTE g, BYTE r)
 {
-    return (unsigned char)(0.299 * r + 0.587 * g + 0.114 * b);
+    return (BYTE)(0.299 * r + 0.587 * g + 0.114 * b);
 }
 
 bmp_HL bmp_24to8_gray(bmp_HL bmp)
@@ -85,38 +74,38 @@ bmp_HL bmp_24to8_gray(bmp_HL bmp)
         exit(1);
     }
 
-    // 复制bmp图像
-    bmp                      = bmpCopy(bmp);
+    bmp_HL output;
+    memset(&output, 0, sizeof(bmp_HL));
 
     // 创建256色灰度调色板
     unsigned int paletteSize = 256;
     PALETTE      palette     = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
     for (int i = 0; i < paletteSize; i++)
     {
-        palette[i].rgbBlue     = i;
-        palette[i].rgbGreen    = i;
-        palette[i].rgbRed      = i;
+        palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
         palette[i].rgbReserved = 0;
     }
 
     // 创建8位灰度图像数据
-    unsigned int   dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
-    unsigned char* data     = (unsigned char*)malloc(dataSize);
+    unsigned int dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
+    BYTE* data = (BYTE*)malloc(dataSize);
+
+    output.header = bmp.header;
+    output.infoHeader = bmp.infoHeader;
 
     for (int i = 0; i < dataSize; i++)
     {
         // 每个像素点的调色板索引值为灰度值
-        data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
+        data[i] = gray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
     }
 
-    bmp.header.bfSize          = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
-    bmp.header.bfOffBits       = sizeof(bmpHEADER) + sizeof(bmpINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
-    bmp.infoHeader.biBitCount  = 8;                                                                                       // 更新位数
-    bmp.infoHeader.biSizeImage = dataSize;                                                                                // 更新图像数据区大小
-    bmp.infoHeader.biClrUsed   = 0;                                                                                       // 更新调色板大小
-    bmp.palette                = palette;                                                                                 // 更新调色板
-    bmp.data                   = data;                                                                                    // 更新数据
-    return bmp;
+    output.header.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;// 更新文件大小
+    output.header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);// 更新数据偏移
+    output.infoHeader.biBitCount = 8;// 更新位数
+    output.infoHeader.biSizeImage = dataSize;
+    output.palette = palette;
+    output.data = data;
+    return output;
 }
 
 bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
@@ -127,17 +116,15 @@ bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
         exit(1);
     }
 
-    // 复制bmp图像
-    bmp                      = bmpCopy(bmp);
+    bmp_HL output;
+    memset(&output, 0, sizeof(bmp_HL)); // 初始化 output
 
-    // 修改调色板为反色调色板
-    unsigned int paletteSize = 256;
-    for (int i = 0; i < paletteSize; i++)
-    {
-        bmp.palette[i].rgbBlue     = 255 - i;
-        bmp.palette[i].rgbGreen    = 255 - i;
-        bmp.palette[i].rgbRed      = 255 - i;
-        bmp.palette[i].rgbReserved = 0;
+    output.header = bmp.header;
+    output.infoHeader = bmp.infoHeader;
+    output.palette = bmp.palette; // 保留调色板
+    output.data = (BYTE*)malloc(bmp.infoHeader.biSizeImage);
+    for(int i = 0;i < bmp.infoHeader.biSizeImage; i++) {
+        output.data[i] = 255 - bmp.data[i];
     }
-    return bmp;
+    return output;
 }

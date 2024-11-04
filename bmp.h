@@ -5,10 +5,10 @@
 
 typedef struct
 {
-    bmpHEADER      header;
-    bmpINFOHEADER  infoHeader;
-    PALETTE        palette;
-    unsigned char* data;
+    BITMAPFILEHEADER    header;
+    BITMAPINFOHEADER    infoHeader;
+    PALETTE             palette;
+    BYTE*               data;
 } bmp_HL;
 
 // 从文件中读取bmp图像，返回一个bmp_HL结构体
@@ -16,9 +16,6 @@ bmp_HL bmpRead(const char* filename);
 
 // 将bmp图像写入文件
 void bmpWrite(const char* filename, bmp_HL bmp);
-
-// 复制bmp图像
-bmp_HL bmpCopy(bmp_HL bmp);
 
 // 释放bmp_HL结构体占用的内存
 void bmpDelete(bmp_HL* bmp);

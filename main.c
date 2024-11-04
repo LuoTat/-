@@ -3,7 +3,7 @@
 int main()
 {
     // 读取bmp文件
-    bmp_HL bmp             = bmpRead("Data.bmp");
+    bmp_HL bmp             = bmpRead("rgb.bmp");
     // 将24位真彩色图像转换为8位灰度图像
     bmp_HL bmp_gray        = bmp_24to8_gray(bmp);
     // 将8位灰度图像转换为反色8位灰度图像
