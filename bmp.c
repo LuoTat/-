@@ -121,7 +121,8 @@ bmp_HL bmp_8_graytoinvert_gray(bmp_HL bmp)
 
     output.header = bmp.header;
     output.infoHeader = bmp.infoHeader;
-    output.palette = bmp.palette; // 保留调色板
+    output.palette = (PALETTE)malloc(256);
+    memcpy(output.palette, bmp.palette, 1024); // 保留调色板
     output.data = (BYTE*)malloc(bmp.infoHeader.biSizeImage);
     for(int i = 0;i < bmp.infoHeader.biSizeImage; i++) {
         output.data[i] = 255 - bmp.data[i];
