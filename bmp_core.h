@@ -1,3 +1,6 @@
+#define LineByte(width, bitCount)          ((width * bitCount + 31) / 32 * 4)
+#define PaletteSize(biClrUsed, biBitCount) ((biClrUsed) ? (biClrUsed) : 1 << (biBitCount))
+
 #pragma pack(push, 2)
 
 typedef struct
