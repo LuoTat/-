@@ -58,7 +58,8 @@ bmp_HL bmpCopy(bmp_HL bmp)
         copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
         for (int i = 0; i < paletteSize; i++) copy.palette[i] = bmp.palette[i];
     }
-    copy.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
+    copy.palette = NULL;
+    copy.data    = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
     for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) copy.data[i] = bmp.data[i];
     return copy;
 }
@@ -91,7 +92,7 @@ bmp_HL bmp_24to8_gray(bmp_HL bmp)
     // 创建256色灰度调色板
     unsigned int paletteSize = 256;
     PALETTE      palette     = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
-    for (int i = 0; i < paletteSize; i++)
+    for (unsigned int i = 0; i < paletteSize; i++)
     {
         palette[i].rgbBlue     = i;
         palette[i].rgbGreen    = i;
@@ -103,7 +104,7 @@ bmp_HL bmp_24to8_gray(bmp_HL bmp)
     unsigned int   dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
     unsigned char* data     = (unsigned char*)malloc(dataSize);
 
-    for (int i = 0; i < dataSize; i++)
+    for (unsigned int i = 0; i < dataSize; i++)
     {
         // 每个像素点的调色板索引值为灰度值
         data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
@@ -131,6 +132,39 @@ bmp_HL bmp_8_grayto8_gray_invert(bmp_HL bmp)
     bmp = bmpCopy(bmp);
 
     // 修改图像数据区
-    for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) bmp.data[i] = 255 - bmp.data[i];
+    for (unsigned int i = 0; i < bmp.infoHeader.biSizeImage; i++) bmp.data[i] = 255 - bmp.data[i];
+    return bmp;
+}
+
+bmp_HL bmp_24split_rgb_channel(bmp_HL bmp, COLOR color)
+{
+    if (bmp.infoHeader.biBitCount != 24)
+    {
+        printf("Error: Only 24-bit true color image can be split to RGB channel\n");
+        exit(1);
+    }
+
+    // 复制bmp图像
+    bmp = bmpCopy(bmp);
+
+    // 修改图像数据区
+    for (unsigned int i = 0; i < bmp.infoHeader.biSizeImage; i += 3)
+    {
+        switch (color)
+        {
+            case RED :
+                bmp.data[i]     = 0;
+                bmp.data[i + 1] = 0;
+                break;
+            case GREEN :
+                bmp.data[i + 1] = 0;
+                bmp.data[i + 2] = 0;
+                break;
+            case BLUE :
+                bmp.data[i]     = 0;
+                bmp.data[i + 2] = 0;
+                break;
+        }
+    }
     return bmp;
 }
