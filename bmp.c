@@ -58,8 +58,8 @@ bmp_HL bmpCopy(bmp_HL bmp)
         copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
         for (int i = 0; i < paletteSize; i++) copy.palette[i] = bmp.palette[i];
     }
-    copy.palette = NULL;
-    copy.data    = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
+    else copy.palette = NULL;
+    copy.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
     for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) copy.data[i] = bmp.data[i];
     return copy;
 }
@@ -157,11 +157,11 @@ bmp_HL bmp_24split_rgb_channel(bmp_HL bmp, COLOR color)
                 bmp.data[i + 1] = 0;
                 break;
             case GREEN :
-                bmp.data[i + 1] = 0;
+                bmp.data[i]     = 0;
                 bmp.data[i + 2] = 0;
                 break;
             case BLUE :
-                bmp.data[i]     = 0;
+                bmp.data[i + 1] = 0;
                 bmp.data[i + 2] = 0;
                 break;
         }
