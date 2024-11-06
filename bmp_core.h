@@ -1,18 +1,14 @@
 #define LineByte(width, bitCount)          ((width * bitCount + 31) / 32 * 4)
 #define PaletteSize(biClrUsed, biBitCount) ((biClrUsed) ? (biClrUsed) : 1 << (biBitCount))
 
-#pragma pack(push, 2)
-
 typedef struct
 {
-    unsigned short bfType;         // 文件类型
-    unsigned int   bfSize;         // 文件大小（包括文件头）
-    unsigned short bfReserved1;    // 保留字1
-    unsigned short bfReserved2;    // 保留字2
-    unsigned int   bfOffBits;      // 从文件头到实际位图数据的偏移字节数
-} BITMAPFILEHEADER;
-
-#pragma pack(pop)
+    unsigned short bfType;             // 文件类型
+    unsigned int   bfSize;             // 文件大小（包括文件头）
+    unsigned short bfReserved1;        // 保留字1
+    unsigned short bfReserved2;        // 保留字2
+    unsigned int   bfOffBits;          // 从文件头到实际位图数据的偏移字节数
+} __attribute__((packed)) BITMAPFILEHEADER;
 
 typedef struct
 {
