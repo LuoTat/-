@@ -34,3 +34,11 @@ typedef struct
 } RGBQUAD;
 
 typedef RGBQUAD* PALETTE;
+
+typedef struct
+{
+    BITMAPFILEHEADER header;
+    BITMAPINFOHEADER infoHeader;
+    PALETTE          palette;
+    unsigned char*   data;
+} bmp_HL;
