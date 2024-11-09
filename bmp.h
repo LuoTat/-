@@ -1,14 +1,7 @@
 #include "Mat.h"
 
-enum ImreadModes
-{
-    IMREAD_UNCHANGED,
-    IMREAD_GRAYSCALE,
-    IMREAD_COLOR
-};
-
 // 从文件中读取bmp图像，返回一个Mat
-Mat imread(const char* filename, enum ImreadModes mode);
+Mat imread(const char* filename);
 
 // 将bmp图像写入文件
 void imwrite(const char* filename, Mat src);

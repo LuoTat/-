@@ -5,10 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-Mat imread(const char* filename, enum ImreadModes mode)
+Mat imread(const char* filename)
 {
-    BITMAPFILEHEADER header;
-    BITMAPINFOHEADER infoHeader;
+    bmp_HL bmp;
 
     FILE* file = fopen(filename, "rb");
     if (file == NULL)
@@ -18,138 +17,165 @@ Mat imread(const char* filename, enum ImreadModes mode)
     }
 
     // 读取文件头和信息头
-    fread(&header, sizeof(BITMAPFILEHEADER), 1, file);
-    fread(&infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
+    fread(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fread(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
 
-    if (header.bfType != 0x4D42)
+    if (bmp.header.bfType != 0x4D42)
     {
         printf("Error: Not a BMP file\n");
         exit(1);
     }
 
-    int            rows     = infoHeader.biHeight;
-    int            cols     = infoHeader.biWidth;
-    unsigned short channels = infoHeader.biBitCount / 8;
-    unsigned int   step     = LineByte(cols, infoHeader.biBitCount);
+    int            rows     = bmp.infoHeader.biHeight;
+    int            cols     = bmp.infoHeader.biWidth;
+    unsigned short channels = bmp.infoHeader.biBitCount >> 3;
+    unsigned int   step     = LineByte(cols, bmp.infoHeader.biBitCount);
 
-    // 直接跳转到数据区
-    fseek(file, header.bfOffBits, SEEK_SET);
+    // 直接跳至数据区
+    fseek(file, bmp.header.bfOffBits, SEEK_SET);
+
     // 读取图像数据
-    unsigned char* data = (unsigned char*)malloc(infoHeader.biSizeImage);
-    fread(data, infoHeader.biSizeImage, 1, file);
+    unsigned char* data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
+    fread(data, bmp.infoHeader.biSizeImage, 1, file);
     fclose(file);
 
     Mat mat;
 
-    switch (mode)
+    mat = createMat(rows, cols, channels, sizeof(unsigned char));
+    for (int i = 0; i < bmp.infoHeader.biHeight; ++i)
     {
-        case IMREAD_UNCHANGED :    // 读取原始图像
-            mat = createMat(rows, cols, channels, 1);
-            for (int i = 0; i < infoHeader.biHeight; ++i)
-            {
-                memcpy(mat.data + i * mat.step, data + i * step, mat.step);
-            }
-            break;
-        case IMREAD_COLOR :    // 读取BGR3通道图像
-            mat = createMat(rows, cols, 3, 1);
-            for (int i = 0; i < rows; ++i)
-            {
-                for (int j = 0; j < cols; ++j)
-                {
-                    unsigned char* mat_pixel = PIXEL(mat, i, j);
-                    switch (infoHeader.biBitCount)
-                    {
-                        case 32 :    // 舍去alpha通道
-                            mat_pixel[0] = data[i * step + j * 4 + 0];
-                            mat_pixel[1] = data[i * step + j * 4 + 1];
-                            mat_pixel[2] = data[i * step + j * 4 + 2];
-                            break;
-                        case 24 :
-                            mat_pixel[0] = data[i * step + j * 3 + 0];
-                            mat_pixel[1] = data[i * step + j * 3 + 1];
-                            mat_pixel[2] = data[i * step + j * 3 + 2];
-                            break;
-                        case 8 :    // 伪彩色图像
-                            mat_pixel[0] = data[i * step + j];
-                            mat_pixel[1] = data[i * step + j];
-                            mat_pixel[2] = data[i * step + j];
-                            break;
-                        default :
-                            printf("Error: Unsupported bit count %d\n", infoHeader.biBitCount);
-                            exit(1);
-                    }
-                }
-            }
-            break;
-        case IMREAD_GRAYSCALE :    // 读取8位灰度图像
-            mat = createMat(rows, cols, 1, 1);
-            for (int i = 0; i < rows; ++i)
-            {
-                for (int j = 0; j < cols; ++j)
-                {
-                    unsigned char* mat_pixel = PIXEL(mat, i, j);
-                    switch (infoHeader.biBitCount)
-                    {
-                        case 32 :
-                            *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 4 + 0] + 0.587 * data[i * step + j * 4 + 1] + 0.299 * data[i * step + j * 4 + 2]);
-                            break;
-                        case 24 :
-                            *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 3 + 0] + 0.587 * data[i * step + j * 3 + 1] + 0.299 * data[i * step + j * 3 + 2]);
-                            break;
-                        case 8 :
-                            *mat_pixel = data[i * step + j];
-                            break;
-                        default :
-                            printf("Error: Unsupported bit count %d\n", infoHeader.biBitCount);
-                            exit(1);
-                    }
-                }
-            }
+        memcpy(mat.data + i * mat.step, data + i * step, mat.step);
     }
+
+    //     case IMREAD_COLOR :    // 读取BGR3通道图像
+    //         mat = createMat(rows, cols, 3, 1);
+    //         for (int i = 0; i < rows; ++i)
+    //         {
+    //             for (int j = 0; j < cols; ++j)
+    //             {
+    //                 unsigned char* mat_pixel = PIXEL(mat, i, j);
+    //                 switch (bmp.infoHeader.biBitCount)
+    //                 {
+    //                     case 32 :    // 舍去alpha通道
+    //                         mat_pixel[0] = data[i * step + j * 4 + 0];
+    //                         mat_pixel[1] = data[i * step + j * 4 + 1];
+    //                         mat_pixel[2] = data[i * step + j * 4 + 2];
+    //                         break;
+    //                     case 24 :
+    //                         mat_pixel[0] = data[i * step + j * 3 + 0];
+    //                         mat_pixel[1] = data[i * step + j * 3 + 1];
+    //                         mat_pixel[2] = data[i * step + j * 3 + 2];
+    //                         break;
+    //                     case 8 :    // 伪彩色图像
+    //                         mat_pixel[0] = data[i * step + j];
+    //                         mat_pixel[1] = data[i * step + j];
+    //                         mat_pixel[2] = data[i * step + j];
+    //                         break;
+    //                     default :
+    //                         printf("Error: Unsupported bit count %d\n", bmp.infoHeader.biBitCount);
+    //                         exit(1);
+    //                 }
+    //             }
+    //         }
+    //         break;
+    //     case IMREAD_GRAYSCALE :    // 读取8位灰度图像
+    //         mat = createMat(rows, cols, 1, 1);
+    //         for (int i = 0; i < rows; ++i)
+    //         {
+    //             for (int j = 0; j < cols; ++j)
+    //             {
+    //                 unsigned char* mat_pixel = PIXEL(mat, i, j);
+    //                 switch (bmp.infoHeader.biBitCount)
+    //                 {
+    //                     case 32 :
+    //                         *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 4 + 0] + 0.587 * data[i * step + j * 4 + 1] + 0.299 * data[i * step + j * 4 + 2]);
+    //                         break;
+    //                     case 24 :
+    //                         *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 3 + 0] + 0.587 * data[i * step + j * 3 + 1] + 0.299 * data[i * step + j * 3 + 2]);
+    //                         break;
+    //                     case 8 :
+    //                         *mat_pixel = data[i * step + j];
+    //                         break;
+    //                     default :
+    //                         printf("Error: Unsupported bit count %d\n", bmp.infoHeader.biBitCount);
+    //                         exit(1);
+    //                 }
+    //             }
+    //         }
+    // }
 
     free(data);
     return mat;
 }
 
-void imwrite(const char* filename, Mat src)
+bmp_HL mat2bmp(Mat mat)
 {
-    BITMAPFILEHEADER header;
-    BITMAPINFOHEADER infoHeader;
-    unsigned int     step      = LineByte(src.cols, src.elemSize * CHAR_BIT);
+    bmp_HL bmp;
 
-    // 填充文件头
-    header.bfType              = 0x4D42;
-    header.bfSize              = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + src.rows * src.step;
-    header.bfReserved1         = 0;
-    header.bfReserved2         = 0;
-    header.bfOffBits           = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    unsigned int step              = LineByte(mat.cols, mat.elemSize * CHAR_BIT);
+    unsigned int dataSize          = mat.rows * step;
+    unsigned int paletteSize       = (mat.channels != 1) ? 0 : 256;
 
-    // 填充信息头
-    infoHeader.biSize          = sizeof(BITMAPINFOHEADER);
-    infoHeader.biWidth         = src.cols;
-    infoHeader.biHeight        = src.rows;
-    infoHeader.biPlanes        = 1;
-    infoHeader.biBitCount      = src.channels * 8;
-    infoHeader.biCompression   = 0;
-    infoHeader.biSizeImage     = src.rows * step;
-    infoHeader.biXPelsPerMeter = 0;
-    infoHeader.biYPelsPerMeter = 0;
-    infoHeader.biClrUsed       = 0;
-    infoHeader.biClrImportant  = 0;
+    bmp.header.bfType              = 0x4D42;
+    bmp.header.bfSize              = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;
+    bmp.header.bfReserved1         = 0;
+    bmp.header.bfReserved2         = 0;
+    bmp.header.bfOffBits           = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);
 
-    FILE* file                 = fopen(filename, "wb");
+    bmp.infoHeader.biSize          = sizeof(BITMAPINFOHEADER);
+    bmp.infoHeader.biWidth         = mat.cols;
+    bmp.infoHeader.biHeight        = mat.rows;
+    bmp.infoHeader.biPlanes        = 1;
+    bmp.infoHeader.biBitCount      = mat.channels * CHAR_BIT;
+    bmp.infoHeader.biCompression   = 0;
+    bmp.infoHeader.biSizeImage     = dataSize;
+    bmp.infoHeader.biXPelsPerMeter = 0;
+    bmp.infoHeader.biYPelsPerMeter = 0;
+    bmp.infoHeader.biClrUsed       = 0;
+    bmp.infoHeader.biClrImportant  = 0;
+
+    if (mat.channels == 1)
+    {
+        bmp.palette = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
+        for (unsigned int i = 0; i < paletteSize; i++)
+        {
+            bmp.palette[i].rgbBlue     = i;
+            bmp.palette[i].rgbGreen    = i;
+            bmp.palette[i].rgbRed      = i;
+            bmp.palette[i].rgbReserved = 0;
+        }
+    }
+    else bmp.palette = NULL;
+
+    bmp.data = (unsigned char*)malloc(dataSize);
+    for (int i = 0; i < mat.rows; ++i)
+    {
+        memcpy(bmp.data + i * step, mat.data + i * mat.step, mat.step);
+    }
+    return bmp;
+}
+
+void bmpwrite(const char* filename, bmp_HL bmp)
+{
+    FILE* file = fopen(filename, "wb");
     if (file == NULL)
     {
         printf("Error: Cannot open file %s\n", filename);
         exit(1);
     }
-    fwrite(&header, sizeof(BITMAPFILEHEADER), 1, file);
-    fwrite(&infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
-    for (int i = 0; i < src.rows; ++i)
-    {
-        fwrite(src.data + i * src.step, step, 1, file);
-    }
+    fwrite(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
+    if (bmp.palette != NULL) fwrite(bmp.palette, sizeof(RGBQUAD), 256, file);
+    fwrite(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
     fclose(file);
+}
+
+void imwrite(const char* filename, Mat mat)
+{
+    bmp_HL bmp = mat2bmp(mat);
+    bmpwrite(filename, bmp);
+    free(bmp.palette);
+    free(bmp.data);
 }
 
 // bmp_HL bmpCopy(bmp_HL bmp)
