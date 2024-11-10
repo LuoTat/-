@@ -1,13 +1,82 @@
 #include "bmp.h"
-#include "bmp_core.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define LineByte(width, bitCount)          ((((width) * (bitCount) + 31) >> 5) << 2)
+#define PaletteSize(biClrUsed, biBitCount) ((biClrUsed) ? (biClrUsed) : 1 << (biBitCount))
+
+typedef struct
+{
+    unsigned short bfType;             // 文件类型
+    unsigned int   bfSize;             // 文件大小（包括文件头）
+    unsigned short bfReserved1;        // 保留字1
+    unsigned short bfReserved2;        // 保留字2
+    unsigned int   bfOffBits;          // 从文件头到实际位图数据的偏移字节数
+} __attribute__((packed)) BITMAPFILEHEADER;
+
+typedef struct
+{
+    unsigned int   biSize;             // 信息头大小
+    int            biWidth;            // 图像宽度
+    int            biHeight;           // 图像高度
+    unsigned short biPlanes;           // 位平面数，必须为1
+    unsigned short biBitCount;         // 每个像素的位数
+    unsigned int   biCompression;      // 压缩类型
+    unsigned int   biSizeImage;        // 图像大小
+    int            biXPelsPerMeter;    // 水平分辨率
+    int            biYPelsPerMeter;    // 垂直分辨率
+    unsigned int   biClrUsed;          // 使用的颜色数
+    unsigned int   biClrImportant;     // 重要的颜色数
+} BITMAPINFOHEADER;
+
+typedef struct
+{
+    unsigned char rgbBlue;             // 蓝色分量
+    unsigned char rgbGreen;            // 绿色分量
+    unsigned char rgbRed;              // 红色分量
+    unsigned char rgbReserved;         // 保留字
+} RGBQUAD;
+
+typedef RGBQUAD* PALETTE;
+
+typedef struct
+{
+    BITMAPFILEHEADER header;
+    BITMAPINFOHEADER infoHeader;
+    PALETTE          palette;
+    unsigned char*   data;
+} BMP_HL;
+
+static BMP_HL copyBMP(BMP_HL* bmp)
+{
+    BMP_HL copy;
+    copy.header     = bmp->header;
+    copy.infoHeader = bmp->infoHeader;
+    if (bmp->palette != NULL)
+    {
+        unsigned int paletteSize = PaletteSize(bmp->infoHeader.biClrUsed, bmp->infoHeader.biBitCount);
+        copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
+        memcpy(copy.palette, bmp->palette, paletteSize * sizeof(RGBQUAD));
+    }
+    else copy.palette = NULL;
+    copy.data = (unsigned char*)malloc(bmp->infoHeader.biSizeImage);
+    memcpy(copy.data, bmp->data, bmp->infoHeader.biSizeImage);
+    return copy;
+}
+
+static void deleteBMP(BMP_HL* bmp)
+{
+    free(bmp->palette);
+    free(bmp->data);
+    bmp->palette = NULL;
+    bmp->data    = NULL;
+}
+
 Mat imread(const char* filename)
 {
-    bmp_HL bmp;
+    BMP_HL bmp;
 
     FILE* file = fopen(filename, "rb");
     if (file == NULL)
@@ -31,6 +100,15 @@ Mat imread(const char* filename)
     unsigned short channels = bmp.infoHeader.biBitCount >> 3;
     unsigned int   step     = LineByte(cols, bmp.infoHeader.biBitCount);
 
+    // 读取调色板
+    if (channels == 1)
+    {
+        unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
+        bmp.palette              = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
+        fread(bmp.palette, sizeof(RGBQUAD), paletteSize, file);
+    }
+    else bmp.palette = NULL;
+
     // 直接跳至数据区
     fseek(file, bmp.header.bfOffBits, SEEK_SET);
 
@@ -47,74 +125,32 @@ Mat imread(const char* filename)
         memcpy(mat.data + i * mat.step, data + i * step, mat.step);
     }
 
-    //     case IMREAD_COLOR :    // 读取BGR3通道图像
-    //         mat = createMat(rows, cols, 3, 1);
-    //         for (int i = 0; i < rows; ++i)
-    //         {
-    //             for (int j = 0; j < cols; ++j)
-    //             {
-    //                 unsigned char* mat_pixel = PIXEL(mat, i, j);
-    //                 switch (bmp.infoHeader.biBitCount)
-    //                 {
-    //                     case 32 :    // 舍去alpha通道
-    //                         mat_pixel[0] = data[i * step + j * 4 + 0];
-    //                         mat_pixel[1] = data[i * step + j * 4 + 1];
-    //                         mat_pixel[2] = data[i * step + j * 4 + 2];
-    //                         break;
-    //                     case 24 :
-    //                         mat_pixel[0] = data[i * step + j * 3 + 0];
-    //                         mat_pixel[1] = data[i * step + j * 3 + 1];
-    //                         mat_pixel[2] = data[i * step + j * 3 + 2];
-    //                         break;
-    //                     case 8 :    // 伪彩色图像
-    //                         mat_pixel[0] = data[i * step + j];
-    //                         mat_pixel[1] = data[i * step + j];
-    //                         mat_pixel[2] = data[i * step + j];
-    //                         break;
-    //                     default :
-    //                         printf("Error: Unsupported bit count %d\n", bmp.infoHeader.biBitCount);
-    //                         exit(1);
-    //                 }
-    //             }
-    //         }
-    //         break;
-    //     case IMREAD_GRAYSCALE :    // 读取8位灰度图像
-    //         mat = createMat(rows, cols, 1, 1);
-    //         for (int i = 0; i < rows; ++i)
-    //         {
-    //             for (int j = 0; j < cols; ++j)
-    //             {
-    //                 unsigned char* mat_pixel = PIXEL(mat, i, j);
-    //                 switch (bmp.infoHeader.biBitCount)
-    //                 {
-    //                     case 32 :
-    //                         *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 4 + 0] + 0.587 * data[i * step + j * 4 + 1] + 0.299 * data[i * step + j * 4 + 2]);
-    //                         break;
-    //                     case 24 :
-    //                         *mat_pixel = (unsigned char)(0.114 * data[i * step + j * 3 + 0] + 0.587 * data[i * step + j * 3 + 1] + 0.299 * data[i * step + j * 3 + 2]);
-    //                         break;
-    //                     case 8 :
-    //                         *mat_pixel = data[i * step + j];
-    //                         break;
-    //                     default :
-    //                         printf("Error: Unsupported bit count %d\n", bmp.infoHeader.biBitCount);
-    //                         exit(1);
-    //                 }
-    //             }
-    //         }
-    // }
-
-    free(data);
+    deleteBMP(&bmp);
     return mat;
 }
 
-bmp_HL mat2bmp(Mat mat)
+static void BMPwrite(const char* filename, BMP_HL* bmp)
 {
-    bmp_HL bmp;
+    FILE* file = fopen(filename, "wb");
+    if (file == NULL)
+    {
+        printf("Error: Cannot open file %s\n", filename);
+        exit(1);
+    }
+    fwrite(&bmp->header, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bmp->infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
+    if (bmp->palette != NULL) fwrite(bmp->palette, sizeof(RGBQUAD), 256, file);
+    fwrite(bmp->data, bmp->infoHeader.biSizeImage, 1, file);
+    fclose(file);
+}
 
-    unsigned int step              = LineByte(mat.cols, mat.elemSize * CHAR_BIT);
-    unsigned int dataSize          = mat.rows * step;
-    unsigned int paletteSize       = (mat.channels != 1) ? 0 : 256;
+static BMP_HL Mat2BMP(Mat* mat)
+{
+    BMP_HL bmp;
+
+    unsigned int step              = LineByte(mat->cols, mat->elemSize * CHAR_BIT);
+    unsigned int dataSize          = mat->rows * step;
+    unsigned int paletteSize       = (mat->channels != 1) ? 0 : 256;
 
     bmp.header.bfType              = 0x4D42;
     bmp.header.bfSize              = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;
@@ -123,10 +159,10 @@ bmp_HL mat2bmp(Mat mat)
     bmp.header.bfOffBits           = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);
 
     bmp.infoHeader.biSize          = sizeof(BITMAPINFOHEADER);
-    bmp.infoHeader.biWidth         = mat.cols;
-    bmp.infoHeader.biHeight        = mat.rows;
+    bmp.infoHeader.biWidth         = mat->cols;
+    bmp.infoHeader.biHeight        = mat->rows;
     bmp.infoHeader.biPlanes        = 1;
-    bmp.infoHeader.biBitCount      = mat.channels * CHAR_BIT;
+    bmp.infoHeader.biBitCount      = mat->channels * CHAR_BIT;
     bmp.infoHeader.biCompression   = 0;
     bmp.infoHeader.biSizeImage     = dataSize;
     bmp.infoHeader.biXPelsPerMeter = 0;
@@ -134,7 +170,7 @@ bmp_HL mat2bmp(Mat mat)
     bmp.infoHeader.biClrUsed       = 0;
     bmp.infoHeader.biClrImportant  = 0;
 
-    if (mat.channels == 1)
+    if (mat->channels == 1)
     {
         bmp.palette = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
         for (unsigned int i = 0; i < paletteSize; i++)
@@ -148,217 +184,16 @@ bmp_HL mat2bmp(Mat mat)
     else bmp.palette = NULL;
 
     bmp.data = (unsigned char*)malloc(dataSize);
-    for (int i = 0; i < mat.rows; ++i)
+    for (int i = 0; i < mat->rows; ++i)
     {
-        memcpy(bmp.data + i * step, mat.data + i * mat.step, mat.step);
+        memcpy(bmp.data + i * step, mat->data + i * mat->step, mat->step);
     }
     return bmp;
 }
 
-void bmpwrite(const char* filename, bmp_HL bmp)
+void imwrite(const char* filename, Mat* img)
 {
-    FILE* file = fopen(filename, "wb");
-    if (file == NULL)
-    {
-        printf("Error: Cannot open file %s\n", filename);
-        exit(1);
-    }
-    fwrite(&bmp.header, sizeof(BITMAPFILEHEADER), 1, file);
-    fwrite(&bmp.infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
-    if (bmp.palette != NULL) fwrite(bmp.palette, sizeof(RGBQUAD), 256, file);
-    fwrite(bmp.data, bmp.infoHeader.biSizeImage, 1, file);
-    fclose(file);
+    BMP_HL bmp = Mat2BMP(img);
+    BMPwrite(filename, &bmp);
+    deleteBMP(&bmp);
 }
-
-void imwrite(const char* filename, Mat mat)
-{
-    bmp_HL bmp = mat2bmp(mat);
-    bmpwrite(filename, bmp);
-    free(bmp.palette);
-    free(bmp.data);
-}
-
-// bmp_HL bmpCopy(bmp_HL bmp)
-// {
-//     bmp_HL copy;
-//     copy.header     = bmp.header;
-//     copy.infoHeader = bmp.infoHeader;
-//     if (bmp.palette != NULL)
-//     {
-//         unsigned int paletteSize = PaletteSize(bmp.infoHeader.biClrUsed, bmp.infoHeader.biBitCount);
-//         copy.palette             = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
-//         for (int i = 0; i < paletteSize; i++) copy.palette[i] = bmp.palette[i];
-//     }
-//     else copy.palette = NULL;
-//     copy.data = (unsigned char*)malloc(bmp.infoHeader.biSizeImage);
-//     for (int i = 0; i < bmp.infoHeader.biSizeImage; i++) copy.data[i] = bmp.data[i];
-//     return copy;
-// }
-
-// void bmpDelete(bmp_HL* bmp)
-// {
-//     free(bmp->palette);
-//     free(bmp->data);
-//     bmp->palette = NULL;
-//     bmp->data    = NULL;
-// }
-
-// // 将(b, g, r)转换为灰度值
-// inline static unsigned char rgbtogray(unsigned char b, unsigned char g, unsigned char r)
-// {
-//     return (unsigned char)(0.299 * r + 0.587 * g + 0.114 * b);
-// }
-
-// bmp_HL bmp_24to8_gray(bmp_HL bmp)
-// {
-//     if (bmp.infoHeader.biBitCount != 24)
-//     {
-//         printf("Error: Only 24-bit true color image can be converted to 8-bit grayscale image\n");
-//         exit(1);
-//     }
-
-//     // 复制bmp图像
-//     bmp                      = bmpCopy(bmp);
-
-//     // 创建256色灰度调色板
-//     unsigned int paletteSize = 256;
-//     PALETTE      palette     = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
-//     for (unsigned int i = 0; i < paletteSize; i++)
-//     {
-//         palette[i].rgbBlue     = i;
-//         palette[i].rgbGreen    = i;
-//         palette[i].rgbRed      = i;
-//         palette[i].rgbReserved = 0;
-//     }
-
-//     // 创建8位灰度图像数据
-//     unsigned int   dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
-//     unsigned char* data     = (unsigned char*)malloc(dataSize);
-
-//     for (unsigned int i = 0; i < dataSize; i++)
-//     {
-//         // 每个像素点的调色板索引值为灰度值
-//         data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
-//     }
-
-//     bmp.header.bfSize          = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
-//     bmp.header.bfOffBits       = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
-//     bmp.infoHeader.biBitCount  = 8;                                                                                                 // 更新位数
-//     bmp.infoHeader.biSizeImage = dataSize;                                                                                          // 更新图像数据区大小
-//     bmp.infoHeader.biClrUsed   = 0;                                                                                                 // 更新调色板大小
-//     bmp.palette                = palette;                                                                                           // 更新调色板
-//     bmp.data                   = data;                                                                                              // 更新数据
-//     return bmp;
-// }
-
-// bmp_HL bmp_8_grayto8_gray_invert(bmp_HL bmp)
-// {
-//     if (bmp.infoHeader.biBitCount != 8)
-//     {
-//         printf("Error: Only 8-bit grayscale image can be converted to inverted 8-bit grayscale image\n");
-//         exit(1);
-//     }
-
-//     // 复制bmp图像
-//     bmp = bmpCopy(bmp);
-
-//     // 修改图像数据区
-//     for (unsigned int i = 0; i < bmp.infoHeader.biSizeImage; i++) bmp.data[i] = 255 - bmp.data[i];
-//     return bmp;
-// }
-
-// bmp_HL bmp_24split_rgb_channel(bmp_HL bmp, COLOR color)
-// {
-//     if (bmp.infoHeader.biBitCount != 24)
-//     {
-//         printf("Error: Only 24-bit true color image can be split to RGB channel\n");
-//         exit(1);
-//     }
-
-//     // 复制bmp图像
-//     bmp                      = bmpCopy(bmp);
-
-//     // 创建256色灰度调色板
-//     unsigned int paletteSize = 256;
-//     PALETTE      palette     = (PALETTE)malloc(paletteSize * sizeof(RGBQUAD));
-//     for (unsigned int i = 0; i < paletteSize; i++)
-//     {
-//         palette[i].rgbBlue     = i;
-//         palette[i].rgbGreen    = i;
-//         palette[i].rgbRed      = i;
-//         palette[i].rgbReserved = 0;
-//     }
-
-//     // 创建8位灰度图像数据
-//     unsigned int   dataSize = LineByte(bmp.infoHeader.biWidth, 8) * bmp.infoHeader.biHeight;
-//     unsigned char* data     = (unsigned char*)malloc(dataSize);
-
-//     for (unsigned int i = 0; i < dataSize; i++)
-//     {
-//         // 每个像素点的调色板索引值为灰度值
-//         data[i] = rgbtogray(bmp.data[i * 3], bmp.data[i * 3 + 1], bmp.data[i * 3 + 2]);
-//     }
-
-//     bmp.header.bfSize          = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD) + dataSize;    // 更新文件大小
-//     bmp.header.bfOffBits       = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + paletteSize * sizeof(RGBQUAD);               // 更新数据偏移
-//     bmp.infoHeader.biBitCount  = 8;                                                                                                 // 更新位数
-//     bmp.infoHeader.biSizeImage = dataSize;                                                                                          // 更新图像数据区大小
-//     bmp.infoHeader.biClrUsed   = 0;                                                                                                 // 更新调色板大小
-//     bmp.palette                = palette;                                                                                           // 更新调色板
-//     bmp.data                   = data;                                                                                              // 更新数据
-//     return bmp;
-
-
-
-
-//     // 修改图像数据区
-//     for (unsigned int i = 0; i < bmp.infoHeader.biSizeImage; i += 3)
-//     {
-//         switch (color)
-//         {
-//             case RED :
-//                 if (bmp.data[i + 2] != 0)
-//                 {
-//                     bmp.data[i]     = 255;
-//                     bmp.data[i + 1] = 255;
-//                     bmp.data[i + 2] = 255;
-//                 }
-//                 else
-//                 {
-//                     bmp.data[i]     = 0;
-//                     bmp.data[i + 1] = 0;
-//                     bmp.data[i + 2] = 0;
-//                 }
-//                 break;
-//             case GREEN :
-//                 if (bmp.data[i + 1] != 0)
-//                 {
-//                     bmp.data[i]     = 255;
-//                     bmp.data[i + 1] = 255;
-//                     bmp.data[i + 2] = 255;
-//                 }
-//                 else
-//                 {
-//                     bmp.data[i]     = 0;
-//                     bmp.data[i + 1] = 0;
-//                     bmp.data[i + 2] = 0;
-//                 }
-//                 break;
-//             case BLUE :
-//                 if (bmp.data[i] != 0)
-//                 {
-//                     bmp.data[i]     = 255;
-//                     bmp.data[i + 1] = 255;
-//                     bmp.data[i + 2] = 255;
-//                 }
-//                 else
-//                 {
-//                     bmp.data[i]     = 0;
-//                     bmp.data[i + 1] = 0;
-//                     bmp.data[i + 2] = 0;
-//                 }
-//                 break;
-//         }
-//     }
-//     return bmp;
-// }

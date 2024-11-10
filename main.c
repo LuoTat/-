@@ -1,23 +1,72 @@
-#include "bmp.h"
+#include "core.h"
+#include "mat.h"
+#include <stdio.h>
 
-int main()
+// 功能菜单
+void showMenu()
 {
-    // 读取bmp文件
-    Mat rgb = imread("rgb.bmp");
-    // 将24位真彩色图像转换为8位灰度图像
-    Mat gray;
-    cvtColor(rgb, &gray, COLOR_BGR2GRAY);
-    // 将24位真彩色图像转换为8位灰度图像并反转
-    Mat gray_inverted;
-    cvtColor(rgb, &gray_inverted, COLOR_BGR2GRAY_INVERTED);
-    // 通道分离
-    Mat out_array[3];
-    split(rgb, out_array);
-    // 写入bmp文件
-    imwrite("rgb_gray.bmp", gray);
-    imwrite("rgb_gray_inverted.bmp", gray_inverted);
-    imwrite("rgb_blue.bmp", out_array[0]);
-    imwrite("rgb_green.bmp", out_array[1]);
-    imwrite("rgb_red.bmp", out_array[2]);
+    printf("\n===========================\n");
+    printf("        图像处理工具        \n");
+    printf("===========================\n");
+    printf("请选择功能：\n");
+    printf("1. 将图像转换为灰度图\n");
+    printf("2. 将图像转换为反转灰度图\n");
+    printf("3. 分离图像通道\n");
+    printf("0. 退出\n");
+    printf("===========================\n");
+    printf("请输入数字来运行功能：");
+}
+
+int main(int argc, char* argv[])
+{
+    unsigned char choice;
+    Mat           in, out;
+
+    do {
+        showMenu();
+        scanf("%hhu", &choice);
+        switch (choice)
+        {
+            case 1 :
+                // 转换为灰度图像
+                in = imread("rgb.bmp");
+                cvtColor(&in, &out, COLOR_BGR2GRAY);
+                imwrite("rgb_gray.bmp", &out);
+                printf("已将图像转换为灰度图，保存为 rgb_gray.bmp\n");
+                deleteMat(&in);
+                deleteMat(&out);
+                break;
+            case 2 :
+                // 转换为反转灰度图像
+                in = imread("rgb.bmp");
+                cvtColor(&in, &out, COLOR_BGR2GRAY_INVERTED);
+                imwrite("rgb_gray_inverted.bmp", &out);
+                printf("已将图像转换为反转灰度图，保存为 rgb_gray_inverted.bmp\n");
+                deleteMat(&in);
+                deleteMat(&out);
+                break;
+            case 3 :
+                // 分离通道
+                in = imread("rgb.bmp");
+                Mat out_array[3];
+                split(&in, out_array);
+                imwrite("rgb_B.bmp", &out_array[0]);
+                imwrite("rgb_G.bmp", &out_array[1]);
+                imwrite("rgb_R.bmp", &out_array[2]);
+                printf("已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n");
+                deleteMat(&in);
+                deleteMat(&out_array[0]);
+                deleteMat(&out_array[1]);
+                deleteMat(&out_array[2]);
+                break;
+            case 0 :
+                printf("退出程序。\n");
+                break;
+            default :
+                printf("无效输入，请重新选择。\n");
+        }
+    }
+    while (choice != 0);
+
     return 0;
 }

@@ -1,6 +1,8 @@
+#pragma once
+
 #include <stddef.h>
 
-// 用来定位Mat中的像素位置
+// 定位Mat中的像素位置
 #define PIXEL(Mat, i, j) ((Mat).data + (i) * (Mat).step + (j) * (Mat).elemSize)
 
 typedef struct
@@ -23,8 +25,14 @@ enum ColorConversionCodes
 // 创建一个Mat对象
 Mat createMat(int row, int col, unsigned char channels, size_t elemSize1);
 
+// 深拷贝
+Mat copyMat(const Mat* m);
+
+// 销毁Mat对象
+void deleteMat(Mat* m);
+
 // 颜色空间转换
-void cvtColor(Mat src, Mat* dst, enum ColorConversionCodes code);
+void cvtColor(const Mat* src, Mat* dst, enum ColorConversionCodes code);
 
 // 分离通道
-void split(Mat src, Mat* dst);
+void split(const Mat* m, Mat* mv);
