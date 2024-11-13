@@ -5,7 +5,7 @@ CFLAGS = -g
 # 目标可执行文件
 TARGET = main
 # 源文件
-SRCS = main.c BmpDecoder.c BmpEncoder.c loadsave.c mat.c color.c color_rgb.c split.c
+SRCS = main.c BmpDecoder.c BmpEncoder.c loadsave.c mat.c color.c color_rgb.c split.c histogram.c
 # 生成的对象文件
 OBJS = $(SRCS:.c=.o)
 

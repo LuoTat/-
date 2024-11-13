@@ -11,6 +11,7 @@ void showMenu()
     printf("1. 将图像转换为灰度图\n");
     printf("2. 将图像转换为反转灰度图\n");
     printf("3. 分离图像通道\n");
+    printf("4. 生成灰度直方图\n");
     printf("0. 退出\n");
     printf("===========================\n");
     printf("请输入数字来运行功能：");
@@ -57,6 +58,18 @@ int main(int argc, char* argv[])
                 deleteMat(&out_array[0]);
                 deleteMat(&out_array[1]);
                 deleteMat(&out_array[2]);
+                break;
+            case 4 :
+                // 生成灰度直方图
+                in = imread("rgb.bmp");
+                cvtColor(&in, &out, COLOR_BGR2GRAY);
+                Mat hist;
+                calcHist(&out, &hist);
+                imwrite("rgb_hist.bmp", &hist);
+                printf("已生成灰度直方图，保存为 rgb_hist.bmp\n");
+                deleteMat(&in);
+                deleteMat(&out);
+                deleteMat(&hist);
                 break;
             case 0 :
                 printf("退出程序。\n");

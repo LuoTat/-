@@ -10,3 +10,6 @@ enum ColorConversionCodes
 
 // 颜色空间转换
 void cvtColor(const Mat* src, Mat* dst, enum ColorConversionCodes code);
+
+// 直方图计算
+void calcHist(const Mat* images, Mat* hist);
