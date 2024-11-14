@@ -45,18 +45,18 @@ void calcHist(const Mat* images, Mat* hist)
         for (int x = 0; x < hist->cols; ++x)
         {
             unsigned char* pixel = PIXEL(*hist, x, y);
-            if (x < 5 || x > 255)    // 左右的空白部分
+            if (x < 5 || x > 260)    // 左右的空白部分
             {
                 *pixel = 255;
             }
-            else if (count[x] == 0)
+            else if (count[x - 5] == 0)
             {
                 *pixel = 255;
             }
             else
             {
                 *pixel = 0;
-                --count[x];
+                --count[x - 5];
             }
         }
     }
