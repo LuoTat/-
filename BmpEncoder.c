@@ -42,7 +42,12 @@ void write(const BmpEncoder* encoder, const Mat* img)
     fwrite(&height, sizeof(int), 1, fp);                       // 写入biHeight
     fwrite(&biPlanes, sizeof(short), 1, fp);                   // 写入biPlanes
     fwrite(&biBitCount, sizeof(short), 1, fp);                 // 写入biBitCount
-    fwrite(&zeropad, sizeof(int), 6, fp);                      // 写入biCompression, biSizeImage, biXPelsPerMeter, biYPelsPerMeter, biClrUsed, biClrImportant
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biCompression
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biSizeImage
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biXPelsPerMeter
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biYPelsPerMeter
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biClrUsed
+    fwrite(&zeropad, sizeof(int), 1, fp);                      // 写入biClrImportant
 
     if (channels == 1)
     {
