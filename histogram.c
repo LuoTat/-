@@ -1,5 +1,6 @@
 #include "core.h"
 #include "mat.h"
+#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +22,44 @@ void calcHist(const Mat* images, Mat* hist)
         for (int x = 0; x < images->cols; ++x)
         {
             ++*(size_t*)PIXEL(*hist, *PIXEL(*images, x, y), 0);
+        }
+    }
+}
+
+void calcCDF(Mat* hist, double* cdf, int totalPixels)
+{
+    for (int x = 0; x < hist->cols; ++x)
+    {
+        size_t* hist_pixi = (size_t*)PIXEL(*hist, x, 0);
+        cdf[x]            = *hist_pixi / (double)totalPixels;
+    }
+
+    for (int i = 1; i < hist->cols; ++i)
+    {
+        cdf[i] = cdf[i - 1] + cdf[i];
+    }
+}
+
+void equalizeImage(Mat* image)
+{
+    Mat hist;
+
+    calcHist(image, &hist);
+
+    double cdf[256];    // 累积分布函数
+
+
+    // 2. 计算累积分布函数（CDF）
+    int totalPixels = image->rows * image->cols;
+    calcCDF(&hist, cdf, totalPixels);
+
+    // 3. 应用均衡化，更新像素值
+    for (int y = 0; y < image->rows; ++y)
+    {
+        for (int x = 0; x < image->cols; ++x)
+        {
+            unsigned char* pixel = PIXEL(*image, x, y);
+            *pixel               = (unsigned char)round((256 - 1) * cdf[*pixel]);
         }
     }
 }
