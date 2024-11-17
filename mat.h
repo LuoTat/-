@@ -24,3 +24,6 @@ Mat copyMat(const Mat* m);
 
 // 销毁Mat对象
 void deleteMat(Mat* m);
+
+// 将src放缩到dst
+void convertTo(const Mat* src, Mat* dst, double scale, double shift);

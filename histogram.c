@@ -1,6 +1,8 @@
+#include "core.h"
 #include "mat.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 void calcHist(const Mat* images, Mat* hist)
 {
@@ -10,53 +12,36 @@ void calcHist(const Mat* images, Mat* hist)
         return;
     }
 
-    // 创建一个1000*256+10的矩阵(左右各留5个像素的空白)
-    *hist             = createMat(1000, 256 + 10, 1, sizeof(unsigned char));
-    // 用于存储每个像素值的个数
-    size_t count[256] = {0};
+    // 创建一个256*1的灰度矩阵，元素类型为size_t
+    *hist = createMat(1, 256, 1, sizeof(size_t));
 
     // 遍历所有的像素值
     for (int y = 0; y < images->rows; ++y)
     {
         for (int x = 0; x < images->cols; ++x)
         {
-            unsigned char* pixel = PIXEL(*images, x, y);
-            ++count[*pixel];
+            ++*(size_t*)PIXEL(*hist, *PIXEL(*images, x, y), 0);
         }
     }
+}
 
-    // 将count归一化到0-1000
-    size_t max = 0;
-    for (int i = 0; i < 256; ++i)
-    {
-        if (count[i] > max)
-        {
-            max = count[i];
-        }
-    }
-    for (int i = 0; i < 256; ++i)
-    {
-        count[i] = count[i] * 1000 / max;
-    }
+void drawHist(const Mat* hist, Mat* histImage, int width, int height)
+{
+    *histImage = createMat(height, 256 * width, 1, sizeof(unsigned char));
 
-    // 将count的值赋值给hist
-    for (int y = 0; y < hist->rows; ++y)
+    for (int y = 0; y < histImage->rows; ++y)
     {
-        for (int x = 0; x < hist->cols; ++x)
+        for (int x = 0; x < histImage->cols; x += width)
         {
-            unsigned char* pixel = PIXEL(*hist, x, y);
-            if (x < 5 || x > 260)    // 左右的空白部分
+            size_t* hist_pixi = (size_t*)PIXEL(*hist, x / width, 0);
+            if (*hist_pixi == 0)
             {
-                *pixel = 255;
-            }
-            else if (count[x - 5] == 0)
-            {
-                *pixel = 255;
+                memset(PIXEL(*histImage, x, y), 255, width);
             }
             else
             {
-                *pixel = 0;
-                --count[x - 5];
+                memset(PIXEL(*histImage, x, y), 0, width);
+                --*hist_pixi;
             }
         }
     }

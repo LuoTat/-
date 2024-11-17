@@ -13,3 +13,6 @@ void cvtColor(const Mat* src, Mat* dst, enum ColorConversionCodes code);
 
 // 直方图计算
 void calcHist(const Mat* images, Mat* hist);
+
+// 画直方图
+void drawHist(const Mat* hist, Mat* histImage, int width, int height);

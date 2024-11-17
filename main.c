@@ -61,15 +61,20 @@ int main(int argc, char* argv[])
                 break;
             case 4 :
                 // 生成灰度直方图
-                in = imread("rgb.bmp");
-                cvtColor(&in, &out, COLOR_BGR2GRAY);
+                in = imread("dim.bmp");
                 Mat hist;
-                calcHist(&out, &hist);
-                imwrite("rgb_hist.bmp", &hist);
-                printf("已生成灰度直方图，保存为 rgb_hist.bmp\n");
+                calcHist(&in, &hist);
+                Mat hist_norm;
+                normalize(&hist, &hist_norm, 0, 1000, NORM_MINMAX);
+                Mat hist_norm_img;
+                drawHist(&hist_norm, &hist_norm_img, 10, 1100);
+                imwrite("dim_hist_norm_img.bmp", &hist_norm_img);
+                printf("已生成灰度直方图，保存为 dim_hist_norm_img.bmp\n");
                 deleteMat(&in);
                 deleteMat(&out);
                 deleteMat(&hist);
+                deleteMat(&hist_norm);
+                deleteMat(&hist_norm_img);
                 break;
             case 0 :
                 printf("退出程序。\n");
