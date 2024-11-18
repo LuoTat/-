@@ -14,7 +14,7 @@ all: $(TARGET)
 
 # 编译目标
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -lm
 
 # 编译各个源文件为对象文件
 %.o: %.c
