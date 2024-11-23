@@ -210,7 +210,7 @@ bool readData(BmpDecoder* decoder, Mat* img)
 
 
     // 临时存储从文件读取的数据
-    unsigned char* src = (unsigned char*)malloc((src_pitch + 32) * sizeof(char));
+    unsigned char* src = (unsigned char*)alloca((src_pitch + 32) * sizeof(char));
     // 临时存储从调色板转换为 BGR 的中间数据
     unsigned char* bgr = (unsigned char*)malloc(1032 * sizeof(char));
 
@@ -473,7 +473,6 @@ bool readData(BmpDecoder* decoder, Mat* img)
             break;
         default : perror("Invalid/unsupported mode");
     }
-    free(src);
     free(bgr);
     return result;
 }
