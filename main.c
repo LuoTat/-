@@ -47,22 +47,22 @@ int main()
         //     release(&rgb);
         //     release(&rgb_gray_inverted);
         // }
-        // else if (choice == 3)
-        // {
-        //     // 分离通道
-        //     Mat rgb;
-        //     Mat splited_array[3];
-        //     rgb = imread("rgb.bmp");
-        //     split(&rgb, splited_array);
-        //     imwrite("rgb_B.bmp", &splited_array[0]);
-        //     imwrite("rgb_G.bmp", &splited_array[1]);
-        //     imwrite("rgb_R.bmp", &splited_array[2]);
-        //     printf("已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n");
-        //     deleteMat(&rgb);
-        //     deleteMat(&splited_array[0]);
-        //     deleteMat(&splited_array[1]);
-        //     deleteMat(&splited_array[2]);
-        // }
+        else if (choice == 3)
+        {
+            // 分离通道
+            Mat rgb;
+            Mat splited_array[3];
+            rgb = imread("/home/LuoTat/Desktop/Digital_Image_Processing/rgb.bmp", IMREAD_UNCHANGED);
+            split(&rgb, splited_array);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_B.bmp", &splited_array[0]);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_G.bmp", &splited_array[1]);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_R.bmp", &splited_array[2]);
+            printf("已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n");
+            release(&rgb);
+            release(&splited_array[0]);
+            release(&splited_array[1]);
+            release(&splited_array[2]);
+        }
         // else if (choice == 4)
         // {
         //     // 直方图处理
