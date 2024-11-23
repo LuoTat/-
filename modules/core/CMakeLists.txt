@@ -2,6 +2,7 @@ set(SOURCES
     convert_scale.dispatch.c
     convert.dispatch.c
     mat.c
+    split.dispatch.c
 )
 
 add_library(openHL_core STATIC ${SOURCES})
