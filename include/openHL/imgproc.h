@@ -1,15 +1,14 @@
 #pragma once
 
-#include "core.h"
+#include "openHL/core.h"
 
 enum ColorConversionCodes
 {
-    COLOR_BGR2GRAY,
-    COLOR_BGR2GRAY_INVERTED
+    COLOR_BGR2GRAY = 6
 };
 
 // 颜色空间转换
-void cvtColor(const Mat* src, Mat* dst, enum ColorConversionCodes code);
+void cvtColor(const Mat* src, Mat* dst, int code);
 
 // 直方图计算
 void calcHist(const Mat* images, Mat* hist);

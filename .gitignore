@@ -1,5 +1,4 @@
-*.o
-main
+/build
 *.bmp
 !rgb.bmp
 !dim.bmp
