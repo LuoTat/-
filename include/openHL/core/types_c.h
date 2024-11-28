@@ -1,0 +1,60 @@
+#pragma once
+
+enum
+{
+    HL_StsOk                     = 0,    /**< everything is ok                */
+    HL_StsBackTrace              = -1,   /**< pseudo error for back trace     */
+    HL_StsError                  = -2,   /**< unknown /unspecified error      */
+    HL_StsInternal               = -3,   /**< internal error (bad state)      */
+    HL_StsNoMem                  = -4,   /**< insufficient memory             */
+    HL_StsBadArg                 = -5,   /**< function arg/param is bad       */
+    HL_StsBadFunc                = -6,   /**< unsupported function            */
+    HL_StsNoConv                 = -7,   /**< iter. didn't converge           */
+    HL_StsAutoTrace              = -8,   /**< tracing                         */
+    HL_HeaderIsNull              = -9,   /**< image header is NULL            */
+    HL_BadImageSize              = -10,  /**< image size is invalid           */
+    HL_BadOffset                 = -11,  /**< offset is invalid               */
+    HL_BadDataPtr                = -12,  /**/
+    HL_BadStep                   = -13,  /**< image step is wrong, this may happen for a non-continuous matrix */
+    HL_BadModelOrChSeq           = -14,  /**/
+    HL_BadNumChannels            = -15,  /**< bad number of channels, for example, some functions accept only single channel matrices */
+    HL_BadNumChannel1U           = -16,  /**/
+    HL_BadDepth                  = -17,  /**< input image depth is not supported by the function */
+    HL_BadAlphaChannel           = -18,  /**/
+    HL_BadOrder                  = -19,  /**< number of dimensions is out of range */
+    HL_BadOrigin                 = -20,  /**< incorrect input origin               */
+    HL_BadAlign                  = -21,  /**< incorrect input align                */
+    HL_BadCallBack               = -22,  /**/
+    HL_BadTileSize               = -23,  /**/
+    HL_BadCOI                    = -24,  /**< input COI is not supported           */
+    HL_BadROISize                = -25,  /**< incorrect input roi                  */
+    HL_MaskIsTiled               = -26,  /**/
+    HL_StsNullPtr                = -27,  /**< null pointer */
+    HL_StsVecLengthErr           = -28,  /**< incorrect vector length */
+    HL_StsFilterStructContentErr = -29,  /**< incorrect filter structure content */
+    HL_StsKernelStructContentErr = -30,  /**< incorrect transform kernel content */
+    HL_StsFilterOffsetErr        = -31,  /**< incorrect filter offset value */
+    HL_StsBadSize                = -201, /**< the input/output structure size is incorrect  */
+    HL_StsDivByZero              = -202, /**< division by zero */
+    HL_StsInplaceNotSupported    = -203, /**< in-place operation is not supported */
+    HL_StsObjectNotFound         = -204, /**< request can't be completed */
+    HL_StsUnmatchedFormats       = -205, /**< formats of input/output arrays differ */
+    HL_StsBadFlag                = -206, /**< flag is wrong or not supported */
+    HL_StsBadPoint               = -207, /**< bad CvPoint */
+    HL_StsBadMask                = -208, /**< bad format of mask (neither 8uC1 nor 8sC1)*/
+    HL_StsUnmatchedSizes         = -209, /**< sizes of input/output structures do not match */
+    HL_StsUnsupportedFormat      = -210, /**< the data format/type is not supported by the function*/
+    HL_StsOutOfRange             = -211, /**< some of parameters are out of range */
+    HL_StsParseError             = -212, /**< invalid syntax/structure of the parsed file */
+    HL_StsNotImplemented         = -213, /**< the requested function/feature is not implemented */
+    HL_StsBadMemBlock            = -214, /**< an allocated block has been corrupted */
+    HL_StsAssert                 = -215, /**< assertion failed   */
+    HL_GpuNotSupported           = -216, /**< no CUDA support    */
+    HL_GpuApiCallError           = -217, /**< GPU API call error */
+    HL_OpenGlNotSupported        = -218, /**< no OpenGL support  */
+    HL_OpenGlApiCallError        = -219, /**< OpenGL API call error */
+    HL_OpenCLApiCallError        = -220, /**< OpenCL API call error */
+    HL_OpenCLDoubleNotSupported  = -221,
+    HL_OpenCLInitError           = -222, /**< OpenCL initialization error */
+    HL_OpenCLNoAMDBlasFft        = -223
+};

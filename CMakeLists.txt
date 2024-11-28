@@ -2,15 +2,13 @@
 cmake_minimum_required(VERSION 3.31)
 
 # 设置工程名称和版本
-project(openHL VERSION 1.0.0 LANGUAGES C)
-
-set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_EXTENSIONS ON)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+project(openHL VERSION 1.0.0 LANGUAGES CXX)
 
 # 设置编译器的参数
-SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -Wall -Wextra")
-SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -Wextra")
+set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -Wextra -Werror")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -Werror")
 
 # 设置编译器显示详细信息
 set(CMAKE_VERBOSE_MAKEFILE False)
@@ -25,9 +23,9 @@ endif()
 message(STATUS "Build type:               ${CMAKE_BUILD_TYPE}")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "C编译器参数:                ${CMAKE_C_FLAGS_DEBUG}")
+    message(STATUS "CXX编译器参数:                ${CMAKE_CXX_FLAGS_DEBUG}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    message(STATUS "C编译器参数:                ${CMAKE_C_FLAGS_RELEASE}")
+    message(STATUS "CXX编译器参数:                ${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
 # 设置头文件的路径
@@ -37,8 +35,8 @@ include_directories(include)
 add_subdirectory(modules)
 
 # 定义库列表
-set(OPENHL_LIBRARIES openHL_core openHL_imgcodecs openHL_imgproc)
+set(OPENHL_LIBRARIES openHL_core openHL_imgcodecs)
 
 # 生成main
-add_executable(main main.c)
+add_executable(main main.cxx)
 target_link_libraries(main ${OPENHL_LIBRARIES})

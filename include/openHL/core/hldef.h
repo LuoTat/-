@@ -1,75 +1,150 @@
 #pragma once
 
-#define HL_CN_MAX              512
-#define HL_CN_SHIFT            3
-#define HL_DEPTH_MAX           (1 << HL_CN_SHIFT)
-
-#define HL_8U                  0
-#define HL_8S                  1
-#define HL_16U                 2
-#define HL_16S                 3
-#define HL_32U                 4
-#define HL_32S                 5
-#define HL_32F                 6
-#define HL_64F                 7
-
-#define HL_MAT_DEPTH_MASK      (HL_DEPTH_MAX - 1)
-
-// 获得depth
-#define HL_MAT_DEPTH(flags)    ((flags) & HL_MAT_DEPTH_MASK)
-#define HL_MAKETYPE(depth, cn) (HL_MAT_DEPTH(depth) + (((cn) - 1) << HL_CN_SHIFT))
-#define HL_MAKE_TYPE           HL_MAKETYPE
-
-#define HL_8UC1                HL_MAKETYPE(HL_8U, 1)
-#define HL_8UC2                HL_MAKETYPE(HL_8U, 2)
-#define HL_8UC3                HL_MAKETYPE(HL_8U, 3)
-#define HL_8UC4                HL_MAKETYPE(HL_8U, 4)
-
-#define HL_8SC1                HL_MAKETYPE(HL_8S, 1)
-#define HL_8SC2                HL_MAKETYPE(HL_8S, 2)
-#define HL_8SC3                HL_MAKETYPE(HL_8S, 3)
-#define HL_8SC4                HL_MAKETYPE(HL_8S, 4)
-
-#define HL_16UC1               HL_MAKETYPE(HL_16U, 1)
-#define HL_16UC2               HL_MAKETYPE(HL_16U, 2)
-#define HL_16UC3               HL_MAKETYPE(HL_16U, 3)
-#define HL_16UC4               HL_MAKETYPE(HL_16U, 4)
-
-#define HL_16SC1               HL_MAKETYPE(HL_16S, 1)
-#define HL_16SC2               HL_MAKETYPE(HL_16S, 2)
-#define HL_16SC3               HL_MAKETYPE(HL_16S, 3)
-#define HL_16SC4               HL_MAKETYPE(HL_16S, 4)
-
-#define HL_32SC1               HL_MAKETYPE(HL_32S, 1)
-#define HL_32SC2               HL_MAKETYPE(HL_32S, 2)
-#define HL_32SC3               HL_MAKETYPE(HL_32S, 3)
-#define HL_32SC4               HL_MAKETYPE(HL_32S, 4)
-
-#define HL_32FC1               HL_MAKETYPE(HL_32F, 1)
-#define HL_32FC2               HL_MAKETYPE(HL_32F, 2)
-#define HL_32FC3               HL_MAKETYPE(HL_32F, 3)
-#define HL_32FC4               HL_MAKETYPE(HL_32F, 4)
-
-#define HL_64FC1               HL_MAKETYPE(HL_64F, 1)
-#define HL_64FC2               HL_MAKETYPE(HL_64F, 2)
-#define HL_64FC3               HL_MAKETYPE(HL_64F, 3)
-#define HL_64FC4               HL_MAKETYPE(HL_64F, 4)
-
-#define HL_16FC1               HL_MAKETYPE(HL_16F, 1)
-#define HL_16FC2               HL_MAKETYPE(HL_16F, 2)
-#define HL_16FC3               HL_MAKETYPE(HL_16F, 3)
-#define HL_16FC4               HL_MAKETYPE(HL_16F, 4)
+#include <limits>
+#include "openHL/core/hal/interface.h"
+#include <cstdint>
 
 
+//////////////// static assert /////////////////
 
-#define HL_MAT_CN_MASK         ((HL_CN_MAX - 1) << HL_CN_SHIFT)
-// 获得通道数
-#define HL_MAT_CN(flags)       ((((flags) & HL_MAT_CN_MASK) >> HL_CN_SHIFT) + 1)
-#define HL_MAT_TYPE_MASK       (HL_DEPTH_MAX * HL_CN_MAX - 1)
-// 获得type
-#define HL_MAT_TYPE(flags)     ((flags) & HL_MAT_TYPE_MASK)
+#define HL_StaticAssert(condition, reason) static_assert((condition), reason " " #condition)
+
+#define HL_UNUSED(name)                    (void)name
+
+/****************************************************************************************\
+*                                  Matrix type (Mat)                                     *
+\****************************************************************************************/
+
+#define HL_MAT_CN_MASK                     ((HL_CN_MAX - 1) << HL_CN_SHIFT)
+#define HL_MAT_CN(flags)                   ((((flags) & HL_MAT_CN_MASK) >> HL_CN_SHIFT) + 1)
+#define HL_MAT_TYPE_MASK                   (HL_DEPTH_MAX * HL_CN_MAX - 1)
+#define HL_MAT_TYPE(flags)                 ((flags) & HL_MAT_TYPE_MASK)
+#define HL_MAT_CONT_FLAG_SHIFT             14
+#define HL_MAT_CONT_FLAG                   (1 << HL_MAT_CONT_FLAG_SHIFT)
+#define HL_IS_MAT_CONT(flags)              ((flags) & HL_MAT_CONT_FLAG)
+#define HL_IS_CONT_MAT                     HL_IS_MAT_CONT
+#define HL_SUBMAT_FLAG_SHIFT               15
+#define HL_SUBMAT_FLAG                     (1 << HL_SUBMAT_FLAG_SHIFT)
+#define HL_IS_SUBMAT(flags)                ((flags) & HL_MAT_SUBMAT_FLAG)
+
 /** Size of each channel item,
    0x28442211 = 0010 1000 0100 0100 0010 0010 0001 0001 ~ array of sizeof(arr_type_elem) */
-#define HL_ELEM_SIZE1(type)    ((0x28442211 >> HL_MAT_DEPTH(type) * 4) & 15)
-// 获得元素的字节数
-#define HL_ELEM_SIZE(type)     (HL_MAT_CN(type) * HL_ELEM_SIZE1(type))
+#define HL_ELEM_SIZE1(type)                ((0x28442211 >> HL_MAT_DEPTH(type) * 4) & 15)
+
+
+#define HL_ELEM_SIZE(type)                 (HL_MAT_CN(type) * HL_ELEM_SIZE1(type))
+
+#ifndef MIN
+    #define MIN(a, b) ((a) > (b) ? (b) : (a))
+#endif
+
+#ifndef MAX
+    #define MAX(a, b) ((a) < (b) ? (b) : (a))
+#endif
+
+///////////////////////////////////////// Enum operators ///////////////////////////////////////
+
+#define __HL_ENUM_FLAGS_LOGICAL_NOT(EnumType)                        \
+    static inline bool operator!(const EnumType& val)                \
+    {                                                                \
+        typedef std::underlying_type<EnumType>::type UnderlyingType; \
+        return !static_cast<UnderlyingType>(val);                    \
+    }
+
+#define __HL_ENUM_FLAGS_LOGICAL_NOT_EQ(Arg1Type, Arg2Type)              \
+    static inline bool operator!=(const Arg1Type& a, const Arg2Type& b) \
+    {                                                                   \
+        return static_cast<int>(a) != static_cast<int>(b);              \
+    }
+
+#define __HL_ENUM_FLAGS_LOGICAL_EQ(Arg1Type, Arg2Type)                  \
+    static inline bool operator==(const Arg1Type& a, const Arg2Type& b) \
+    {                                                                   \
+        return static_cast<int>(a) == static_cast<int>(b);              \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_NOT(EnumType)                            \
+    static inline EnumType operator~(const EnumType& val)                \
+    {                                                                    \
+        typedef std::underlying_type<EnumType>::type UnderlyingType;     \
+        return static_cast<EnumType>(~static_cast<UnderlyingType>(val)); \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_OR(EnumType, Arg1Type, Arg2Type)                                       \
+    static inline EnumType operator|(const Arg1Type& a, const Arg2Type& b)                             \
+    {                                                                                                  \
+        typedef std::underlying_type<EnumType>::type UnderlyingType;                                   \
+        return static_cast<EnumType>(static_cast<UnderlyingType>(a) | static_cast<UnderlyingType>(b)); \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_AND(EnumType, Arg1Type, Arg2Type)                                      \
+    static inline EnumType operator&(const Arg1Type& a, const Arg2Type& b)                             \
+    {                                                                                                  \
+        typedef std::underlying_type<EnumType>::type UnderlyingType;                                   \
+        return static_cast<EnumType>(static_cast<UnderlyingType>(a) & static_cast<UnderlyingType>(b)); \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_XOR(EnumType, Arg1Type, Arg2Type)                                      \
+    static inline EnumType operator^(const Arg1Type& a, const Arg2Type& b)                             \
+    {                                                                                                  \
+        typedef std::underlying_type<EnumType>::type UnderlyingType;                                   \
+        return static_cast<EnumType>(static_cast<UnderlyingType>(a) ^ static_cast<UnderlyingType>(b)); \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_OR_EQ(EnumType, Arg1Type)                               \
+    static inline EnumType& operator|=(EnumType& _this, const Arg1Type& val)            \
+    {                                                                                   \
+        _this = static_cast<EnumType>(static_cast<int>(_this) | static_cast<int>(val)); \
+        return _this;                                                                   \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_AND_EQ(EnumType, Arg1Type)                              \
+    static inline EnumType& operator&=(EnumType& _this, const Arg1Type& val)            \
+    {                                                                                   \
+        _this = static_cast<EnumType>(static_cast<int>(_this) & static_cast<int>(val)); \
+        return _this;                                                                   \
+    }
+
+#define __HL_ENUM_FLAGS_BITWISE_XOR_EQ(EnumType, Arg1Type)                              \
+    static inline EnumType& operator^=(EnumType& _this, const Arg1Type& val)            \
+    {                                                                                   \
+        _this = static_cast<EnumType>(static_cast<int>(_this) ^ static_cast<int>(val)); \
+        return _this;                                                                   \
+    }
+
+#define HL_ENUM_FLAGS(EnumType)                               \
+    __HL_ENUM_FLAGS_LOGICAL_NOT(EnumType)                     \
+    __HL_ENUM_FLAGS_LOGICAL_EQ(EnumType, int)                 \
+    __HL_ENUM_FLAGS_LOGICAL_NOT_EQ(EnumType, int)             \
+                                                              \
+    __HL_ENUM_FLAGS_BITWISE_NOT(EnumType)                     \
+    __HL_ENUM_FLAGS_BITWISE_OR(EnumType, EnumType, EnumType)  \
+    __HL_ENUM_FLAGS_BITWISE_AND(EnumType, EnumType, EnumType) \
+    __HL_ENUM_FLAGS_BITWISE_XOR(EnumType, EnumType, EnumType) \
+                                                              \
+    __HL_ENUM_FLAGS_BITWISE_OR_EQ(EnumType, EnumType)         \
+    __HL_ENUM_FLAGS_BITWISE_AND_EQ(EnumType, EnumType)        \
+    __HL_ENUM_FLAGS_BITWISE_XOR_EQ(EnumType, EnumType)
+
+/****************************************************************************************\
+*          exchange-add operation for atomic operations on reference counters            *
+\****************************************************************************************/
+
+#if defined __GNUC__ || defined __clang__
+    #if defined __clang__ && __clang_major__ >= 3 && !defined __ANDROID__ && !defined __EMSCRIPTEN__ && !defined(__CUDACC__) && !defined __INTEL_COMPILER
+        #ifdef __ATOMIC_ACQ_REL
+            #define HL_XADD(addr, delta) __c11_atomic_fetch_add((_Atomic(int)*)(addr), delta, __ATOMIC_ACQ_REL)
+        #else
+            #define HL_XADD(addr, delta) __atomic_fetch_add((_Atomic(int)*)(addr), delta, 4)
+        #endif
+    #else
+        #if defined __ATOMIC_ACQ_REL && !defined __clang__
+        // version for gcc >= 4.7
+            #define HL_XADD(addr, delta) (int)__atomic_fetch_add((unsigned*)(addr), (unsigned)(delta), __ATOMIC_ACQ_REL)
+        #else
+            #define HL_XADD(addr, delta) (int)__sync_fetch_and_add((unsigned*)(addr), (unsigned)(delta))
+        #endif
+    #endif
+#endif
+
+#include "openHL/core/fast_math.hxx"

@@ -2,3 +2,4 @@
 *.bmp
 !rgb.bmp
 !dim.bmp
+!noise.bmp

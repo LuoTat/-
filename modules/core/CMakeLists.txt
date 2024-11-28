@@ -1,10 +1,13 @@
 set(SOURCES
-    convert_scale.dispatch.c
-    convert.dispatch.c
-    mat.c
-    split.dispatch.c
+    alloc.cxx
+    convert_scale.dispatch.cxx
+    convert.dispatch.cxx
+    copy.cxx
+    matrix_iterator.cxx
+    matrix.cxx
+    split.dispatch.cxx
+    system.cxx
+    umatrix.cxx
 )
 
 add_library(openHL_core STATIC ${SOURCES})
-
-target_link_libraries(openHL_core PRIVATE m)
