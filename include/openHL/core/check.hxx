@@ -19,22 +19,25 @@ namespace hl
     }                                                                                      \
     while (0)
 
-/// Supported values of these types: int, float, double
-#define HL_CheckEQ(v1, v2, msg) HL_CHECK(v1, EQ, v2, msg)
-#define HL_CheckNE(v1, v2, msg) HL_CHECK(v1, NE, v2, msg)
-#define HL_CheckLE(v1, v2, msg) HL_CHECK(v1, LE, v2, msg)
-#define HL_CheckLT(v1, v2, msg) HL_CHECK(v1, LT, v2, msg)
-#define HL_CheckGE(v1, v2, msg) HL_CHECK(v1, GE, v2, msg)
-#define HL_CheckGT(v1, v2, msg) HL_CHECK(v1, GT, v2, msg)
-
-
-#define HL_Check(test_expr, msg)                                                           \
+#define HL__CHECK_CUSTOM_TEST(test_expr, msg)                                              \
     do {                                                                                   \
         if (!!(test_expr))                                                                 \
             ;                                                                              \
         else hl::error(hl::Error::StsError, msg, __PRETTY_FUNCTION__, __FILE__, __LINE__); \
     }                                                                                      \
     while (0)
+
+/// Supported values of these types: int, float, double
+#define HL_CheckEQ(v1, v2, msg)       HL_CHECK(v1, EQ, v2, msg)
+#define HL_CheckNE(v1, v2, msg)       HL_CHECK(v1, NE, v2, msg)
+#define HL_CheckLE(v1, v2, msg)       HL_CHECK(v1, LE, v2, msg)
+#define HL_CheckLT(v1, v2, msg)       HL_CHECK(v1, LT, v2, msg)
+#define HL_CheckGE(v1, v2, msg)       HL_CHECK(v1, GE, v2, msg)
+#define HL_CheckGT(v1, v2, msg)       HL_CHECK(v1, GT, v2, msg)
+
+
+#define HL_Check(test_expr, msg)      HL__CHECK_CUSTOM_TEST(test_expr, msg)
+#define HL_CheckDepth(test_expr, msg) HL__CHECK_CUSTOM_TEST(test_expr, msg)
 
 #ifndef NDEBUG
     #define HL_DbgCheck(test_expr, msg) HL_Check(test_expr, msg)

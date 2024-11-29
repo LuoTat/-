@@ -6,18 +6,18 @@ using namespace hl;
 // 功能菜单
 void showMenu()
 {
-    printf("\n===========================\n");
-    printf("        图像处理工具        \n");
-    printf("===========================\n");
-    printf("请选择功能：\n");
-    printf("1. 将图像转换为灰度图\n");
-    printf("2. 将图像转换为反转灰度图\n");
-    printf("3. 分离图像通道\n");
-    printf("4. 直方图处理\n");
-    printf("5. 图像平滑处理\n");
-    printf("0. 退出\n");
-    printf("===========================\n");
-    printf("请输入数字来运行功能：");
+    std::cout << "\n===========================\n";
+    std::cout << "        图像处理工具        \n";
+    std::cout << "===========================\n";
+    std::cout << "请选择功能：\n";
+    std::cout << "1. 将图像转换为灰度图\n";
+    // std::cout << "2. 将图像转换为反转灰度图\n";
+    std::cout << "3. 分离图像通道\n";
+    // std::cout << "4. 直方图处理\n";
+    // std::cout << "5. 图像平滑处理\n";
+    std::cout << "0. 退出\n";
+    std::cout << "===========================\n";
+    std::cout << "请输入数字来运行功能：";
 }
 
 int main()
@@ -31,14 +31,11 @@ int main()
         if (choice == 1)
         {
             // 转换为灰度图像
-            Mat rgb;
+            Mat rgb, rgb_gray;
             rgb = imread("/home/LuoTat/Desktop/Digital_Image_Processing/rgb.bmp", IMREAD_UNCHANGED);
-            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_2.bmp", rgb);
-            // cvtColor(&rgb, &rgb_gray, COLOR_BGR2GRAY);
-            // imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_gray.bmp", &rgb_gray);
-            // printf("已将图像转换为灰度图，保存为 rgb_gray.bmp\n");
-            // release(&rgb);
-            // release(&rgb_gray);
+            cvtColor(rgb, rgb_gray, COLOR_BGR2GRAY);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_gray.bmp", rgb_gray);
+            std::cout << "已将图像转换为灰度图，保存为 rgb_gray.bmp\n";
         }
         // else if (choice == 2)
         // {
@@ -51,22 +48,18 @@ int main()
         //     release(&rgb);
         //     release(&rgb_gray_inverted);
         // }
-        // else if (choice == 3)
-        // {
-        //     // 分离通道
-        //     Mat rgb;
-        //     Mat splited_array[3];
-        //     rgb = imread("/home/LuoTat/Desktop/Digital_Image_Processing/rgb.bmp", IMREAD_UNCHANGED);
-        //     split(&rgb, splited_array);
-        //     imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_B.bmp", &splited_array[0]);
-        //     imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_G.bmp", &splited_array[1]);
-        //     imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_R.bmp", &splited_array[2]);
-        //     printf("已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n");
-        //     release(&rgb);
-        //     release(&splited_array[0]);
-        //     release(&splited_array[1]);
-        //     release(&splited_array[2]);
-        // }
+        else if (choice == 3)
+        {
+            // 分离通道
+            Mat rgb;
+            Mat splited_array[3];
+            rgb = imread("/home/LuoTat/Desktop/Digital_Image_Processing/rgb.bmp", IMREAD_UNCHANGED);
+            split(rgb, splited_array);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_B.bmp", splited_array[0]);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_G.bmp", splited_array[1]);
+            imwrite("/home/LuoTat/Desktop/Digital_Image_Processing/rgb_R.bmp", splited_array[2]);
+            std::cout << "已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n";
+        }
         // else if (choice == 4)
         // {
         //     // 直方图处理

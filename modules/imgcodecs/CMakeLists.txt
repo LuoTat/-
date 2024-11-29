@@ -7,5 +7,3 @@ set(SOURCES
 )
 
 add_library(openHL_imgcodecs STATIC ${SOURCES})
-
-# target_link_libraries(openHL_imgcodecs PRIVATE openHL_core)

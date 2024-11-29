@@ -5,6 +5,7 @@ set(SOURCES
     copy.cxx
     matrix_iterator.cxx
     matrix.cxx
+    parallel.cxx
     split.dispatch.cxx
     system.cxx
     umatrix.cxx

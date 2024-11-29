@@ -53,6 +53,17 @@ inline static size_t alignSize(size_t sz, int n)
     return (sz + n - 1) & -n;
 }
 
+/////////////////////////////// Parallel Primitives //////////////////////////////////
+
+class ParallelLoopBody
+{
+public:
+    virtual ~ParallelLoopBody();
+    virtual void operator()(const Range& range) const = 0;
+};
+
+void parallel_for_(const Range& range, const ParallelLoopBody& body, double nstripes = -1.);
+
 /////////////////////////// Synchronization Primitives ///////////////////////////////
 
 typedef std::recursive_mutex       Mutex;

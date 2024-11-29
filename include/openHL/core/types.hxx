@@ -82,6 +82,58 @@ struct Type<Size_<_Tp>>
 };
 }    // namespace traits
 
+//////////////////////////////// Range /////////////////////////////////
+
+class Range
+{
+public:
+    Range();
+    Range(int _start, int _end);
+    int          size() const;
+    bool         empty() const;
+    static Range all();
+
+    int start, end;
+};
+
+template <> class DataType<Range>
+{
+public:
+    typedef Range      value_type;
+    typedef value_type work_type;
+    typedef int        channel_type;
+
+    enum
+    {
+        generic_type = 0,
+        channels     = 2,
+        fmt          = traits::SafeFmt<channel_type>::fmt + ((channels - 1) << 8)
+    };
+
+    typedef Vec<channel_type, channels> vec_type;
+};
+
+namespace traits
+{
+template <>
+struct Depth<Range>
+{
+    enum
+    {
+        value = Depth<int>::value
+    };
+};
+
+template <>
+struct Type<Range>
+{
+    enum
+    {
+        value = HL_MAKETYPE(Depth<int>::value, 2)
+    };
+};
+}    // namespace traits
+
 //////////////////////////////// Scalar_ ///////////////////////////////
 
 template <typename _Tp> class Scalar_: public Vec<_Tp, 4>
@@ -262,6 +314,72 @@ template <typename _Tp>
 inline static bool operator!=(const Size_<_Tp>& a, const Size_<_Tp>& b)
 {
     return !(a == b);
+}
+
+///////////////////////////////// Range /////////////////////////////////
+
+inline Range::Range():
+    start(0), end(0) {}
+
+inline Range::Range(int _start, int _end):
+    start(_start), end(_end) {}
+
+inline int Range::size() const
+{
+    return end - start;
+}
+
+inline bool Range::empty() const
+{
+    return start == end;
+}
+
+inline Range Range::all()
+{
+    return Range(INT_MIN, INT_MAX);
+}
+
+inline static bool operator==(const Range& r1, const Range& r2)
+{
+    return r1.start == r2.start && r1.end == r2.end;
+}
+
+inline static bool operator!=(const Range& r1, const Range& r2)
+{
+    return !(r1 == r2);
+}
+
+inline static bool operator!(const Range& r)
+{
+    return r.start == r.end;
+}
+
+inline static Range operator&(const Range& r1, const Range& r2)
+{
+    Range r(std::max(r1.start, r2.start), std::min(r1.end, r2.end));
+    r.end = std::max(r.end, r.start);
+    return r;
+}
+
+inline static Range& operator&=(Range& r1, const Range& r2)
+{
+    r1 = r1 & r2;
+    return r1;
+}
+
+inline static Range operator+(const Range& r1, int delta)
+{
+    return Range(r1.start + delta, r1.end + delta);
+}
+
+inline static Range operator+(int delta, const Range& r1)
+{
+    return Range(r1.start + delta, r1.end + delta);
+}
+
+inline static Range operator-(const Range& r1, int delta)
+{
+    return r1 + (-delta);
 }
 
 ///////////////////////////////// Scalar ////////////////////////////////

@@ -36,7 +36,7 @@ void* fastMalloc(size_t size)
 #elif defined HAVE_WIN32_ALIGNED_MALLOC
     if (isAlignedAllocationEnabled())
     {
-        void* ptr = _aligned_malloc(size, CV_MALLOC_ALIGN);
+        void* ptr = _aligned_malloc(size, HL_MALLOC_ALIGN);
         if (!ptr)
             return OutOfMemoryError(size);
         return ptr;

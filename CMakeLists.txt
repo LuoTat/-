@@ -35,7 +35,7 @@ include_directories(include)
 add_subdirectory(modules)
 
 # 定义库列表
-set(OPENHL_LIBRARIES openHL_core openHL_imgcodecs)
+set(OPENHL_LIBRARIES openHL_core openHL_imgcodecs openHL_imgproc)
 
 # 生成main
 add_executable(main main.cxx)
