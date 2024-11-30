@@ -28,8 +28,8 @@
 #define HL_IS_SUBMAT(flags)                ((flags) & HL_MAT_SUBMAT_FLAG)
 
 /** Size of each channel item,
-   0x28442211 = 0010 1000 0100 0100 0010 0010 0001 0001 ~ array of sizeof(arr_type_elem) */
-#define HL_ELEM_SIZE1(type)                ((0x28442211 >> HL_MAT_DEPTH(type) * 4) & 15)
+   0x84442211 = 1000 0100 0100 0100 0010 0010 0001 0001 ~ array of sizeof(arr_type_elem) */
+#define HL_ELEM_SIZE1(type)                ((0x84442211 >> HL_MAT_DEPTH(type) * 4) & 15)
 
 
 #define HL_ELEM_SIZE(type)                 (HL_MAT_CN(type) * HL_ELEM_SIZE1(type))
