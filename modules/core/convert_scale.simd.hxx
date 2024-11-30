@@ -15,8 +15,7 @@ inline void cvt_32f(const _Ts* src, size_t sstep, _Td* dst, size_t dstep, Size s
 
     for (int i = 0; i < size.height; i++, src += sstep, dst += dstep)
     {
-        int j = 0;
-        for (; j < size.width; j++)
+        for (int j = 0; j < size.width; j++)
             dst[j] = saturate_cast<_Td>(src[j] * a + b);
     }
 }
@@ -29,8 +28,7 @@ inline void cvt_64f(const _Ts* src, size_t sstep, _Td* dst, size_t dstep, Size s
 
     for (int i = 0; i < size.height; i++, src += sstep, dst += dstep)
     {
-        int j = 0;
-        for (; j < size.width; j++)
+        for (int j = 0; j < size.width; j++)
             dst[j] = saturate_cast<_Td>(src[j] * a + b);
     }
 }
@@ -133,7 +131,7 @@ DEF_CVT_SCALE_FUNC(64f, cvt_64f, double, double, double)
 
 BinaryFunc getConvertScaleFunc(int sdepth, int ddepth)
 {
-    static BinaryFunc cvtScaleTab[HL_DEPTH_MAX][HL_DEPTH_MAX] = {
+    static BinaryFunc cvtScaleTab[][8] = {
         {(cvtScale8u), (cvtScale8u8s), (cvtScale8u16u), (cvtScale8u16s), (cvtScale8u32u), (cvtScale8u32s), (cvtScale8u32f), (cvtScale8u64f)},
         {(cvtScale8s8u), (cvtScale8s), (cvtScale8s16u), (cvtScale8s16s), (cvtScale8s32u), (cvtScale8s32s), (cvtScale8s32f), (cvtScale8s64f)},
         {(cvtScale16u8u), (cvtScale16u8s), (cvtScale16u), (cvtScale16u16s), (cvtScale16u32u), (cvtScale16u32s), (cvtScale16u32f), (cvtScale16u64f)},

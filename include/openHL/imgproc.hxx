@@ -15,6 +15,8 @@ enum ColorConversionCodes
     COLOR_BGR5552GRAY = 31,
 };
 
+void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);
+
 void cvtColor(const Mat& src, Mat& dst, int code, int dstCn = 0);
 
 }    // namespace hl

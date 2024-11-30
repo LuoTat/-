@@ -1,8 +1,8 @@
 set(SOURCES
     color_rgb.dispatch.cxx
     color.cxx
+    histogram.cxx
 
-    # histogram.c
     # blur.c
 )
 

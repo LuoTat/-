@@ -20,7 +20,7 @@ void Mat::convertTo(Mat& _dst, int _type, double alpha, double beta) const
     bool noScale = fabs(alpha - 1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
 
     if (_type < 0)
-        _type = type();
+        _type = _dst.type();
     else
         _type = HL_MAKETYPE(HL_MAT_DEPTH(_type), channels());
 
