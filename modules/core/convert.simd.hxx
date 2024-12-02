@@ -15,8 +15,7 @@ inline static void cvt_(const _Ts* src, size_t sstep, _Td* dst, size_t dstep, Si
 
     for (int i = 0; i < size.height; i++, src += sstep, dst += dstep)
     {
-        int j = 0;
-        for (; j < size.width; j++)
+        for (int j = 0; j < size.width; j++)
             dst[j] = saturate_cast<_Td>(src[j]);
     }
 }
@@ -142,7 +141,7 @@ static void cvt64(const uchar* src, size_t sstep, const uchar*, size_t, uchar* d
 
 BinaryFunc getConvertFunc(int sdepth, int ddepth)
 {
-    static BinaryFunc cvtTab[HL_DEPTH_MAX][HL_DEPTH_MAX] = {
+    static BinaryFunc cvtTab[][8] = {
         {(cvt8), (cvt8u8s), (cvt8u16u), (cvt8u16s), (cvt8u32u), (cvt8u32s), (cvt8u32f), (cvt8u64f)},
         {(cvt8s8u), (cvt8), (cvt8s16u), (cvt8s16s), (cvt8s32u), (cvt8s32s), (cvt8s32f), (cvt8s64f)},
         {(cvt16u8u), (cvt16u8s), (cvt16), (cvt16u16s), (cvt16u32u), (cvt16u32s), (cvt16u32f), (cvt16u64f)},

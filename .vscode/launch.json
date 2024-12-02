@@ -7,7 +7,7 @@
             "name": "Debug",
             "program": "${workspaceFolder}/build/main",
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/build/"
         },
         {
             "name": "C/C++: clang 生成和调试活动文件",

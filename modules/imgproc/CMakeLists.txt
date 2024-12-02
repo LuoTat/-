@@ -2,6 +2,7 @@ set(SOURCES
     color_rgb.dispatch.cxx
     color.cxx
     transfer.cxx
+    histogram.cxx
     # histogram.c
     # blur.c
 )
