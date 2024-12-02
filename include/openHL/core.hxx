@@ -7,6 +7,7 @@
 #include "openHL/core/matx.hxx"
 #include "openHL/core/types.hxx"
 #include "openHL/core/mat.hxx"
+#include "openHL/core/matrix_operations.hxx"
 
 namespace hl
 {
