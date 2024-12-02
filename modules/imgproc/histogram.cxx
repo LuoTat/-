@@ -626,6 +626,30 @@ static void calcHist_8u(std::vector<uchar*>& _ptrs, const std::vector<int>& _del
     }
 }
 
+void drawHist(const Mat& hist, Mat& histImage, uint width, uint height)
+{
+    Mat hist_norm;
+    normalize(hist, hist_norm, 0, height, NORM_MINMAX, HL_32U);
+    histImage.create(height, width * hist_norm.rows, HL_8UC1);
+
+    for (int y = histImage.rows - 1; y >= 0; --y)
+    {
+        for (int x = 0; x < histImage.cols; x += width)
+        {
+            uint& pixi = hist_norm.at<uint>(x / width);
+            if (pixi == 0)
+            {
+                memset(histImage.ptr(y, x), 255, width);
+            }
+            else
+            {
+                memset(histImage.ptr(y, x), 0, width);
+                --pixi;
+            }
+        }
+    }
+}
+
 }    // namespace hl
 
 void hl::calcHist(const Mat* images, int nimages, const int* channels, const Mat& _mask, Mat& _hist, int dims, const int* histSize, const float** ranges, bool uniform, bool accumulate)
@@ -672,4 +696,188 @@ void hl::calcHist(const Mat* images, int nimages, const int* channels, const Mat
         HL_Error(HL_StsUnsupportedFormat, "");
 
     ihist.convertTo(hist, HL_32F);
+}
+
+class EqualizeHistCalcHist_Invoker: public hl::ParallelLoopBody
+{
+public:
+    enum
+    {
+        HIST_SZ = 256
+    };
+
+    EqualizeHistCalcHist_Invoker(hl::Mat& src, int* histogram, hl::Mutex* histogramLock):
+        src_(src), globalHistogram_(histogram), histogramLock_(histogramLock)
+    {}
+
+    void operator()(const hl::Range& rowRange) const override
+    {
+        int localHistogram[HIST_SZ] = {
+            0,
+        };
+
+        const size_t sstep = src_.step;
+
+        int width          = src_.cols;
+        int height         = rowRange.end - rowRange.start;
+
+        if (src_.isContinuous())
+        {
+            width  *= height;
+            height  = 1;
+        }
+
+        for (const uchar* ptr = src_.ptr<uchar>(rowRange.start); height--; ptr += sstep)
+        {
+            int x = 0;
+            for (; x <= width - 4; x += 4)
+            {
+                int t0 = ptr[x], t1 = ptr[x + 1];
+                localHistogram[t0]++;
+                localHistogram[t1]++;
+                t0 = ptr[x + 2];
+                t1 = ptr[x + 3];
+                localHistogram[t0]++;
+                localHistogram[t1]++;
+            }
+
+            for (; x < width; ++x)
+                localHistogram[ptr[x]]++;
+        }
+
+        hl::AutoLock lock(*histogramLock_);
+
+        for (int i = 0; i < HIST_SZ; i++)
+            globalHistogram_[i] += localHistogram[i];
+    }
+
+    static bool isWorthParallel(const hl::Mat& src)
+    {
+        return (src.total() >= 640 * 480);
+    }
+
+private:
+    EqualizeHistCalcHist_Invoker& operator=(const EqualizeHistCalcHist_Invoker&);
+
+    hl::Mat&   src_;
+    int*       globalHistogram_;
+    hl::Mutex* histogramLock_;
+};
+
+class EqualizeHistLut_Invoker: public hl::ParallelLoopBody
+{
+public:
+    EqualizeHistLut_Invoker(hl::Mat& src, hl::Mat& dst, int* lut):
+        src_(src),
+        dst_(dst),
+        lut_(lut)
+    {}
+
+    void operator()(const hl::Range& rowRange) const override
+    {
+        const size_t sstep = src_.step;
+        const size_t dstep = dst_.step;
+
+        int  width         = src_.cols;
+        int  height        = rowRange.end - rowRange.start;
+        int* lut           = lut_;
+
+        if (src_.isContinuous() && dst_.isContinuous())
+        {
+            width  *= height;
+            height  = 1;
+        }
+
+        const uchar* sptr = src_.ptr<uchar>(rowRange.start);
+        uchar*       dptr = dst_.ptr<uchar>(rowRange.start);
+
+        for (; height--; sptr += sstep, dptr += dstep)
+        {
+            int x = 0;
+            for (; x <= width - 4; x += 4)
+            {
+                int v0      = sptr[x];
+                int v1      = sptr[x + 1];
+                int x0      = lut[v0];
+                int x1      = lut[v1];
+                dptr[x]     = (uchar)x0;
+                dptr[x + 1] = (uchar)x1;
+
+                v0          = sptr[x + 2];
+                v1          = sptr[x + 3];
+                x0          = lut[v0];
+                x1          = lut[v1];
+                dptr[x + 2] = (uchar)x0;
+                dptr[x + 3] = (uchar)x1;
+            }
+
+            for (; x < width; ++x)
+                dptr[x] = (uchar)lut[sptr[x]];
+        }
+    }
+
+    static bool isWorthParallel(const hl::Mat& src)
+    {
+        return (src.total() >= 640 * 480);
+    }
+
+private:
+    EqualizeHistLut_Invoker& operator=(const EqualizeHistLut_Invoker&);
+
+    hl::Mat& src_;
+    hl::Mat& dst_;
+    int*     lut_;
+};
+
+void hl::equalizeHist(const Mat& _src, Mat& _dst)
+{
+    HL_Assert(_src.type() == HL_8UC1);
+
+    if (_src.empty())
+        return;
+
+    Mat src = _src;
+    _dst.create(src.size(), src.type());
+    Mat dst = _dst;
+
+    Mutex histogramLockInstance;
+
+    const int hist_sz       = EqualizeHistCalcHist_Invoker::HIST_SZ;
+    int       hist[hist_sz] = {
+        0,
+    };
+    int lut[hist_sz];
+
+    EqualizeHistCalcHist_Invoker calcBody(src, hist, &histogramLockInstance);
+    EqualizeHistLut_Invoker      lutBody(src, dst, lut);
+    hl::Range                    heightRange(0, src.rows);
+
+    if (EqualizeHistCalcHist_Invoker::isWorthParallel(src))
+        parallel_for_(heightRange, calcBody);
+    else
+        calcBody(heightRange);
+
+    int i = 0;
+    while (!hist[i]) ++i;
+
+    int total = (int)src.total();
+    if (hist[i] == total)
+    {
+        dst.setTo(i);
+        return;
+    }
+
+    float scale = (hist_sz - 1.f) / (total - hist[i]);
+    int   sum   = 0;
+
+    for (lut[i++] = 0; i < hist_sz; ++i)
+    {
+        sum    += hist[i];
+        lut[i]  = saturate_cast<uchar>(sum * scale);
+    }
+
+    if (EqualizeHistLut_Invoker::isWorthParallel(src))
+        parallel_for_(heightRange, lutBody);
+    else
+        lutBody(heightRange);
 }

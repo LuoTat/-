@@ -63,50 +63,24 @@ int main()
         else if (choice == 4)
         {
             // 直方图处理
-            Mat rgb_gray, rgb_hist;
-            rgb_gray                = imread("../rgb.bmp", IMREAD_GRAYSCALE);
+            Mat dim, dim_equalized, dim_equalized_hist, dim_hist, dim_hist_img, dim_equalized_hist_img;
+
+            dim = imread("../dim.bmp", IMREAD_GRAYSCALE);
+            equalizeHist(dim, dim_equalized);
 
             int          channels[] = {0};
-            Mat          mask       = Mat();
             int          histSize[] = {256};
             float        range[]    = {0, 256};
             const float* ranges[]   = {range};
 
-            calcHist(&rgb_gray, 1, channels, mask, rgb_hist, 1, histSize, ranges);
-
-            for (int i = 0; i < 256; i++)
-            {
-                std::cout << "[" << i << "] = " << rgb_hist.at<float>(i) << std::endl;
-            }
-
-
-            // Mat dim, dim_hist, dim_hist_norm, dim_hist_norm_img;
-            // Mat dim_equalized, dim_equalized_hist, dim_equalized_hist_norm, dim_equalized_hist_norm_img;
-            // dim = imread("dim.bmp");
-            // calcHist(&dim, &dim_hist);
-            // normalize(&dim_hist, &dim_hist_norm, 0, 1000, NORM_MINMAX);
-            // drawHist(&dim_hist_norm, &dim_hist_norm_img, 10, 1100);
-            // imwrite("dim_hist_norm_img.bmp", &dim_hist_norm_img);
-            // printf("已生成灰度直方图，保存为 dim_hist_norm_img.bmp\n");
-
-            // equalizeImage(&dim);
-            // imwrite("dim_equalized.bmp", &dim);
-            // printf("已生成均衡化图像，保存为 dim_equalized.bmp\n");
-            // calcHist(&dim, &dim_equalized_hist);
-            // normalize(&dim_equalized_hist, &dim_equalized_hist_norm, 0, 1000, NORM_MINMAX);
-            // drawHist(&dim_equalized_hist_norm, &dim_equalized_hist_norm_img, 10, 1100);
-            // imwrite("dim_equalized_hist_norm_img.bmp", &dim_equalized_hist_norm_img);
-            // printf("已生成直方图均衡化图像，保存为 dim_equalized_hist_norm_img.bmp\n");
-
-
-            // deleteMat(&dim);
-            // deleteMat(&dim_hist);
-            // deleteMat(&dim_hist_norm);
-            // deleteMat(&dim_hist_norm_img);
-            // deleteMat(&dim_equalized);
-            // deleteMat(&dim_equalized_hist);
-            // deleteMat(&dim_equalized_hist_norm);
-            // deleteMat(&dim_equalized_hist_norm_img);
+            calcHist(&dim, 1, channels, Mat(), dim_hist, 1, histSize, ranges);
+            calcHist(&dim_equalized, 1, channels, Mat(), dim_equalized_hist, 1, histSize, ranges);
+            drawHist(dim_hist, dim_hist_img, 4, 1024);
+            drawHist(dim_equalized_hist, dim_equalized_hist_img, 4, 1024);
+            imwrite("../dim_hist_img.bmp", dim_hist_img);
+            imwrite("../dim_equalized_hist_img.bmp", dim_equalized_hist_img);
+            imwrite("../dim_equalized.bmp", dim_equalized);
+            std::cout << "已生成直方图均衡化图像，保存为 dim_equalized.bmp\n";
         }
         // else if (choice == 5)
         // {

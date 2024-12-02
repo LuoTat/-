@@ -361,6 +361,10 @@ Mat::Mat(Mat&& m):
     m.u                      = NULL;
 }
 
+Mat::Mat(const double& val):
+    Mat(Size(1, 1), HL_64F, (void*)&val)
+{}
+
 Mat::Mat(int _rows, int _cols, int _type):
     flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
 {

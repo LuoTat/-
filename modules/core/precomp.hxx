@@ -45,6 +45,18 @@ enum
     BLOCK_SIZE = 1024
 };
 
+inline bool checkScalar(const Mat& sc, int atype)
+{
+    if (sc.dims > 2 || !sc.isContinuous())
+        return false;
+    Size sz = sc.size();
+    if (sz.width != 1 && sz.height != 1)
+        return false;
+    int cn = HL_MAT_CN(atype);
+
+    return sz == Size(1, 1) || sz == Size(1, cn) || sz == Size(cn, 1) || (sz == Size(1, 4) && sc.type() == HL_64F && cn <= 4);
+}
+
 #define HL_SINGLETON_LAZY_INIT_(TYPE, INITIALIZER, RET_VALUE) \
     static TYPE* const instance = INITIALIZER;                \
     return RET_VALUE;

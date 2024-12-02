@@ -17,6 +17,10 @@ enum ColorConversionCodes
 
 void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);
 
+void equalizeHist(const Mat& src, Mat& dst);
+
+void drawHist(const Mat& hist, Mat& histImage, uint width, uint height);
+
 void cvtColor(const Mat& src, Mat& dst, int code, int dstCn = 0);
 
 }    // namespace hl

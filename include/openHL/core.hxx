@@ -32,12 +32,13 @@ public:
 [[noreturn]]
 void error(const Exception& exc);
 
+// 归一化
+void normalize(const Mat& src, Mat& dst, double alpha = 1, double beta = 0, int norm_type = NORM_L2, int dtype = -1, const Mat& mask = Mat());
+
+// 计算最大最小值
+void minMaxIdx(const Mat& src, double* minVal, double* maxVal = 0, int* minIdx = 0, int* maxIdx = 0, const Mat& mask = Mat());
+
 // 分离通道
 void split(const Mat& src, Mat* mvbegin);
 
-// // 归一化
-// void normalize(const Mat* src, Mat* dst, int min, int max, NormTypes norm_type);
-
-// // 获取最大最小值
-// void minMaxIdx(const Mat* src, double* minVal, double* maxVal, int* minIdx, int* maxIdx);
 }    // namespace hl

@@ -130,6 +130,7 @@ public:
     Mat() noexcept;
     Mat(const Mat& m);
     Mat(Mat&& m);
+    Mat(const double& val);
     Mat(int rows, int cols, int type);
     Mat(int rows, int cols, int type, const Scalar& s);
     Mat(Size size, int type);
@@ -146,7 +147,9 @@ public:
     Mat& operator=(const Scalar& s);
 
     void copyTo(Mat& m) const;
+    void copyTo(Mat& m, const Mat& mask) const;
     void convertTo(Mat& m, int rtype, double alpha = 1, double beta = 0) const;
+    Mat& setTo(const Mat& value, const Mat& mask = Mat());
 
     Mat reshape(int cn, int rows = 0) const;
     Mat reshape(int cn, int newndims, const int* newsz) const;
