@@ -158,6 +158,8 @@ public:
     void create(Size size, int type);
     void create(int ndims, const int* sizes, int type);
     void release();
+    void locateROI(Size& wholeSize, Point& ofs) const;
+    Mat& adjustROI(int dtop, int dbottom, int dleft, int dright);
 
     bool   isContinuous() const;
     bool   isSubmatrix() const;

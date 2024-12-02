@@ -14,7 +14,7 @@ void showMenu()
     // std::cout << "2. 将图像转换为反转灰度图\n";
     std::cout << "3. 分离图像通道\n";
     std::cout << "4. 直方图处理\n";
-    // std::cout << "5. 图像平滑处理\n";
+    std::cout << "5. 图像平滑处理\n";
     std::cout << "0. 退出\n";
     std::cout << "===========================\n";
     std::cout << "请输入数字来运行功能：";
@@ -82,16 +82,16 @@ int main()
             imwrite("../dim_equalized.bmp", dim_equalized);
             std::cout << "已生成直方图均衡化图像，保存为 dim_equalized.bmp\n";
         }
-        // else if (choice == 5)
-        // {
-        //     Mat noise = imread("../noise.bmp", IMREAD_GRAYSCALE);
-        //     Mat noise_blur;
-        //     Mat noise_median;
-        //     blurs(&noise, &noise_blur, 5);
-        //     medianBlur(&noise, &noise_median, 5);
-        //     imwrite("../noise_blur.bmp", &noise_blur);
-        //     imwrite("../noise_median.bmp", &noise_median);
-        // }
+        else if (choice == 5)
+        {
+            Mat noise = imread("../noise.bmp", IMREAD_GRAYSCALE);
+            Mat noise_medianblur, noise_blur;
+
+            medianBlur(noise, noise_medianblur, 5);
+            blur(noise, noise_blur, Size(5, 5));
+            imwrite("../noise_medianblur.bmp", noise_medianblur);
+            imwrite("../noise_blur.bmp", noise_blur);
+        }
         else if (choice == 0)
             std::cout
                 << "已退出。\n";

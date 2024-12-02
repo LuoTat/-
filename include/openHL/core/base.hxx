@@ -82,6 +82,20 @@ enum NormTypes
     NORM_MINMAX    = 32
 };
 
+enum BorderTypes
+{
+    BORDER_CONSTANT    = 0,
+    BORDER_REPLICATE   = 1,
+    BORDER_REFLECT     = 2,
+    BORDER_WRAP        = 3,
+    BORDER_REFLECT_101 = 4,
+    BORDER_TRANSPARENT = 5,
+
+    BORDER_REFLECT101  = BORDER_REFLECT_101,
+    BORDER_DEFAULT     = BORDER_REFLECT_101,
+    BORDER_ISOLATED    = 16
+};
+
 [[noreturn]]
 void error(int _code, const String& _err, const char* _func, const char* _file, int _line);
 
@@ -102,6 +116,23 @@ void error(int _code, const String& _err, const char* _func, const char* _file, 
 #else
     #define HL_DbgAssert(expr)
 #endif
+
+
+
+
+////////////////// forward declarations for important OpenCV types //////////////////
+
+//! @cond IGNORED
+
+template <typename _Tp, int cn> class Vec;
+template <typename _Tp, int m, int n> class Matx;
+
+template <typename _Tp> class Complex;
+template <typename _Tp> class Point_;
+template <typename _Tp> class Point3_;
+template <typename _Tp> class Size_;
+template <typename _Tp> class Rect_;
+template <typename _Tp> class Scalar_;
 }    // namespace hl
 
 #include "openHL/core/check.hxx"

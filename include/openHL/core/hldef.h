@@ -11,28 +11,36 @@
 
 #define HL_UNUSED(name)                    (void)name
 
+#ifdef __GNUC__
+    #define HL_DECL_ALIGNED(x) __attribute__((aligned(x)))
+#elif defined _MSC_VER
+    #define HL_DECL_ALIGNED(x) __declspec(align(x))
+#else
+    #define HL_DECL_ALIGNED(x)
+#endif
+
 /****************************************************************************************\
 *                                  Matrix type (Mat)                                     *
 \****************************************************************************************/
 
-#define HL_MAT_CN_MASK                     ((HL_CN_MAX - 1) << HL_CN_SHIFT)
-#define HL_MAT_CN(flags)                   ((((flags) & HL_MAT_CN_MASK) >> HL_CN_SHIFT) + 1)
-#define HL_MAT_TYPE_MASK                   (HL_DEPTH_MAX * HL_CN_MAX - 1)
-#define HL_MAT_TYPE(flags)                 ((flags) & HL_MAT_TYPE_MASK)
-#define HL_MAT_CONT_FLAG_SHIFT             14
-#define HL_MAT_CONT_FLAG                   (1 << HL_MAT_CONT_FLAG_SHIFT)
-#define HL_IS_MAT_CONT(flags)              ((flags) & HL_MAT_CONT_FLAG)
-#define HL_IS_CONT_MAT                     HL_IS_MAT_CONT
-#define HL_SUBMAT_FLAG_SHIFT               15
-#define HL_SUBMAT_FLAG                     (1 << HL_SUBMAT_FLAG_SHIFT)
-#define HL_IS_SUBMAT(flags)                ((flags) & HL_MAT_SUBMAT_FLAG)
+#define HL_MAT_CN_MASK         ((HL_CN_MAX - 1) << HL_CN_SHIFT)
+#define HL_MAT_CN(flags)       ((((flags) & HL_MAT_CN_MASK) >> HL_CN_SHIFT) + 1)
+#define HL_MAT_TYPE_MASK       (HL_DEPTH_MAX * HL_CN_MAX - 1)
+#define HL_MAT_TYPE(flags)     ((flags) & HL_MAT_TYPE_MASK)
+#define HL_MAT_CONT_FLAG_SHIFT 14
+#define HL_MAT_CONT_FLAG       (1 << HL_MAT_CONT_FLAG_SHIFT)
+#define HL_IS_MAT_CONT(flags)  ((flags) & HL_MAT_CONT_FLAG)
+#define HL_IS_CONT_MAT         HL_IS_MAT_CONT
+#define HL_SUBMAT_FLAG_SHIFT   15
+#define HL_SUBMAT_FLAG         (1 << HL_SUBMAT_FLAG_SHIFT)
+#define HL_IS_SUBMAT(flags)    ((flags) & HL_MAT_SUBMAT_FLAG)
 
 /** Size of each channel item,
    0x84442211 = 1000 0100 0100 0100 0010 0010 0001 0001 ~ array of sizeof(arr_type_elem) */
-#define HL_ELEM_SIZE1(type)                ((0x84442211 >> HL_MAT_DEPTH(type) * 4) & 15)
+#define HL_ELEM_SIZE1(type)    ((0x84442211 >> HL_MAT_DEPTH(type) * 4) & 15)
 
 
-#define HL_ELEM_SIZE(type)                 (HL_MAT_CN(type) * HL_ELEM_SIZE1(type))
+#define HL_ELEM_SIZE(type)     (HL_MAT_CN(type) * HL_ELEM_SIZE1(type))
 
 #ifndef MIN
     #define MIN(a, b) ((a) > (b) ? (b) : (a))

@@ -15,6 +15,12 @@ enum ColorConversionCodes
     COLOR_BGR5552GRAY = 31,
 };
 
+void medianBlur(const Mat& src, Mat& dst, int ksize);
+
+void boxFilter(const Mat& src, Mat& dst, int ddepth, Size ksize, Point anchor = Point(-1, -1), bool normalize = true, int borderType = BORDER_DEFAULT);
+
+void blur(const Mat& src, Mat& dst, Size ksize, Point anchor = Point(-1, -1), int borderType = BORDER_DEFAULT);
+
 void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);
 
 void equalizeHist(const Mat& src, Mat& dst);

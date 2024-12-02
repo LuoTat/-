@@ -759,6 +759,50 @@ void Mat::release()
         size.p[i] = 0;
 }
 
+void Mat::locateROI(Size& wholeSize, Point& ofs) const
+{
+    HL_Assert(dims <= 2 && step[0] > 0);
+    size_t    esz    = elemSize(), minstep;
+    ptrdiff_t delta1 = data - datastart, delta2 = dataend - datastart;
+
+    if (delta1 == 0)
+        ofs.x = ofs.y = 0;
+    else
+    {
+        ofs.y = (int)(delta1 / step[0]);
+        ofs.x = (int)((delta1 - step[0] * ofs.y) / esz);
+        HL_DbgAssert(data == datastart + ofs.y * step[0] + ofs.x * esz);
+    }
+    minstep          = (ofs.x + cols) * esz;
+    wholeSize.height = (int)((delta2 - minstep) / step[0] + 1);
+    wholeSize.height = std::max(wholeSize.height, ofs.y + rows);
+    wholeSize.width  = (int)((delta2 - step * (wholeSize.height - 1)) / esz);
+    wholeSize.width  = std::max(wholeSize.width, ofs.x + cols);
+}
+
+Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+{
+    HL_Assert(dims <= 2 && step[0] > 0);
+    Size   wholeSize;
+    Point  ofs;
+    size_t esz = elemSize();
+    locateROI(wholeSize, ofs);
+    int row1 = std::min(std::max(ofs.y - dtop, 0), wholeSize.height), row2 = std::max(0, std::min(ofs.y + rows + dbottom, wholeSize.height));
+    int col1 = std::min(std::max(ofs.x - dleft, 0), wholeSize.width), col2 = std::max(0, std::min(ofs.x + cols + dright, wholeSize.width));
+    if (row1 > row2)
+        std::swap(row1, row2);
+    if (col1 > col2)
+        std::swap(col1, col2);
+
+    data      += (row1 - ofs.y) * (std::ptrdiff_t)step + (col1 - ofs.x) * (std::ptrdiff_t)esz;
+    rows       = row2 - row1;
+    cols       = col2 - col1;
+    size.p[0]  = rows;
+    size.p[1]  = cols;
+    updateContinuityFlag();
+    return *this;
+}
+
 size_t Mat::step1(int i) const
 {
     return step.p[i] / elemSize1();

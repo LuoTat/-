@@ -32,6 +32,10 @@ public:
 [[noreturn]]
 void error(const Exception& exc);
 
+int borderInterpolate(int p, int len, int borderType);
+
+void copyMakeBorder(const Mat& src, Mat& dst, int top, int bottom, int left, int right, int borderType, const Scalar& value = Scalar());
+
 // 归一化
 void normalize(const Mat& src, Mat& dst, double alpha = 1, double beta = 0, int norm_type = NORM_L2, int dtype = -1, const Mat& mask = Mat());
 

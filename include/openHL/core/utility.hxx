@@ -53,6 +53,8 @@ inline static size_t alignSize(size_t sz, int n)
     return (sz + n - 1) & -n;
 }
 
+inline static size_t getElemSize(int type) { return (size_t)HL_ELEM_SIZE(type); }
+
 /////////////////////////////// Parallel Primitives //////////////////////////////////
 
 class ParallelLoopBody
