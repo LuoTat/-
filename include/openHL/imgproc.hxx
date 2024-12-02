@@ -15,8 +15,18 @@ enum ColorConversionCodes
     COLOR_BGR5552GRAY = 31,
 };
 
-void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);
+enum FlipType {
+    HORIZONTAL,
+    VERTICAL
+};
 
+const double PI = 3.14159265358979323846;
+
+void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);
 void cvtColor(const Mat& src, Mat& dst, int code, int dstCn = 0);
+void translate(const Mat& src, Mat& dst, int tx, int ty);
+void resize(const Mat& src, Mat& dst, int newWidth, int newHeight);
+void flip(const Mat& src, Mat& dst, FlipType flipType);
+void rotate(const Mat& src, Mat& dst, double angle);
 
 }    // namespace hl

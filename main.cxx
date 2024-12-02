@@ -15,6 +15,10 @@ void showMenu()
     std::cout << "3. 分离图像通道\n";
     std::cout << "4. 直方图处理\n";
     // std::cout << "5. 图像平滑处理\n";
+    std::cout << "6. 图像平移\n";
+    std::cout << "7. 图像缩放\n";
+    std::cout << "8. 镜像反转\n";
+    std::cout << "9. 图像旋转\n";
     std::cout << "0. 退出\n";
     std::cout << "===========================\n";
     std::cout << "请输入数字来运行功能：";
@@ -118,6 +122,84 @@ int main()
         //     imwrite("../noise_blur.bmp", &noise_blur);
         //     imwrite("../noise_median.bmp", &noise_median);
         // }
+        else if (choice == 6) {
+
+            Mat mat = imread("../lena.bmp",IMREAD_GRAYSCALE);
+
+            if (mat.empty()) {
+                std::cerr << "Error: Image cannot be loaded!" << std::endl;
+                return -1;
+            }
+
+            // 定义平移参数
+            int tx = 50; // x方向平移量
+            int ty = 30; // y方向平移量
+
+            // 创建一个新的Mat对象来存储平移后的图像
+            Mat translated_mat;
+            translate(mat, translated_mat, tx, ty);
+
+            // 保存图像
+            imwrite("../translated_image.bmp", translated_mat);
+        }
+        else if (choice == 7) {
+            // 加载图像
+            Mat mat = imread("../lena.bmp",IMREAD_GRAYSCALE);
+
+            if (mat.empty()) {
+                std::cerr << "Error: Image cannot be loaded!" << std::endl;
+                return -1;
+            }
+
+            // 定义新的宽度和高度
+            int newWidth = 100; // 新的宽度
+            int newHeight = 100; // 新的高度
+
+            // 创建一个新的Mat对象来存储缩放后的图像
+            Mat resized_mat;
+            resize(mat, resized_mat, newWidth, newHeight);
+
+            // 假设我们有一个保存图像的函数
+            imwrite("../resized_image.bmp", resized_mat);
+        }
+        else if (choice == 8) {
+            // 加载图像
+            Mat mat = imread("../lena.bmp",IMREAD_GRAYSCALE);
+
+            if (mat.empty()) {
+                std::cerr << "Error: Image cannot be loaded!" << std::endl;
+                return -1;
+            }
+
+            // 创建一个新的Mat对象来存储水平镜像后的图像
+            Mat h_flipped_mat;
+            flip(mat, h_flipped_mat, HORIZONTAL);
+            imwrite("../horizontal_flipped_image.bmp", h_flipped_mat);
+
+            // 创建一个新的Mat对象来存储垂直镜像后的图像
+            Mat v_flipped_mat;
+            flip(mat, v_flipped_mat, VERTICAL);
+            imwrite("../vertical_flipped_image.bmp", v_flipped_mat);
+        }
+        else if (choice == 9) {
+            // 加载图像
+            Mat mat = imread("../lena.bmp",IMREAD_GRAYSCALE);
+
+            if (mat.empty()) {
+                std::cerr << "Error: Image cannot be loaded!" << std::endl;
+                return -1;
+            }
+
+            // 定义旋转角度
+            double angle = 45.0; // 旋转角度
+
+            // 创建一个新的Mat对象来存储旋转后的图像
+            Mat rotated_mat;
+            rotate(mat, rotated_mat, angle);
+
+            // 假设我们有一个保存图像的函数
+            imwrite("../rotated_image.bmp", rotated_mat);
+        }
         else if (choice == 0)
             std::cout
                 << "已退出。\n";
