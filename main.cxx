@@ -33,9 +33,9 @@ int main()
         {
             // 转换为灰度图像
             Mat rgb, rgb_gray;
-            rgb = imread("../rgb.bmp", IMREAD_UNCHANGED);
+            rgb = imread("../Test/rgb.bmp", IMREAD_UNCHANGED);
             cvtColor(rgb, rgb_gray, COLOR_BGR2GRAY);
-            imwrite("../rgb_gray.bmp", rgb_gray);
+            imwrite("../Test/rgb_gray.bmp", rgb_gray);
             std::cout << "已将图像转换为灰度图，保存为 rgb_gray.bmp\n";
         }
         // else if (choice == 2)
@@ -54,11 +54,11 @@ int main()
             // 分离通道
             Mat rgb;
             Mat splited_array[3];
-            rgb = imread("../rgb.bmp", IMREAD_UNCHANGED);
+            rgb = imread("../Test/rgb.bmp", IMREAD_UNCHANGED);
             split(rgb, splited_array);
-            imwrite("../rgb_B.bmp", splited_array[0]);
-            imwrite("../rgb_G.bmp", splited_array[1]);
-            imwrite("../rgb_R.bmp", splited_array[2]);
+            imwrite("../Test/rgb_B.bmp", splited_array[0]);
+            imwrite("../Test/rgb_G.bmp", splited_array[1]);
+            imwrite("../Test/rgb_R.bmp", splited_array[2]);
             std::cout << "已分离图像通道，分别保存为 rgb_B.bmp, rgb_G.bmp, rgb_R.bmp\n";
         }
         else if (choice == 4)
@@ -66,7 +66,7 @@ int main()
             // 直方图处理
             Mat dim, dim_equalized, dim_equalized_hist, dim_hist, dim_hist_img, dim_equalized_hist_img;
 
-            dim = imread("../dim.bmp", IMREAD_GRAYSCALE);
+            dim = imread("../Test/dim.bmp", IMREAD_GRAYSCALE);
             equalizeHist(dim, dim_equalized);
 
             int          channels[] = {0};
@@ -78,24 +78,24 @@ int main()
             calcHist(&dim_equalized, 1, channels, Mat(), dim_equalized_hist, 1, histSize, ranges);
             drawHist(dim_hist, dim_hist_img, 4, 1024);
             drawHist(dim_equalized_hist, dim_equalized_hist_img, 4, 1024);
-            imwrite("../dim_hist_img.bmp", dim_hist_img);
-            imwrite("../dim_equalized_hist_img.bmp", dim_equalized_hist_img);
-            imwrite("../dim_equalized.bmp", dim_equalized);
+            imwrite("../Test/dim_hist_img.bmp", dim_hist_img);
+            imwrite("../Test/dim_equalized_hist_img.bmp", dim_equalized_hist_img);
+            imwrite("../Test/dim_equalized.bmp", dim_equalized);
             std::cout << "已生成直方图均衡化图像，保存为 dim_equalized.bmp\n";
         }
         else if (choice == 5)
         {
-            Mat noise = imread("../noise.bmp", IMREAD_GRAYSCALE);
+            Mat noise = imread("../Test/noise.bmp", IMREAD_GRAYSCALE);
             Mat noise_medianblur, noise_blur;
 
             medianBlur(noise, noise_medianblur, 5);
             blur(noise, noise_blur, Size(5, 5));
-            imwrite("../noise_medianblur.bmp", noise_medianblur);
-            imwrite("../noise_blur.bmp", noise_blur);
+            imwrite("../Test/noise_medianblur.bmp", noise_medianblur);
+            imwrite("../Test/noise_blur.bmp", noise_blur);
         }
         else if (choice == 6)
         {
-            Mat lena = imread("../lena.bmp", IMREAD_GRAYSCALE);
+            Mat lena = imread("../Test/lena.bmp", IMREAD_GRAYSCALE);
 
             Mat          lena_hist;
             int          channels[] = {0};
@@ -112,13 +112,13 @@ int main()
             // drawHist_T(lena_hist, lena_threshold_Iter_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Iter, 114, 255, THRESH_BINARY)));
             drawHist_T(lena_hist, lena_threshold_Otsu_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Otsu, 0, 255, THRESH_OTSU)));
 
-            imwrite("../lena_threshold_T.bmp", lena_threshold_T);
-            // imwrite("../lena_threshold_Iter.bmp", lena_threshold_Iter);
-            imwrite("../lena_threshold_Otsu.bmp", lena_threshold_Otsu);
+            imwrite("../Test/lena_threshold_T.bmp", lena_threshold_T);
+            // imwrite("../Test/lena_threshold_Iter.bmp", lena_threshold_Iter);
+            imwrite("../Test/lena_threshold_Otsu.bmp", lena_threshold_Otsu);
 
-            imwrite("../lena_threshold_T_hist.bmp", lena_threshold_T_hist_img);
-            // imwrite("../lena_threshold_Iter_hist.bmp", lena_threshold_Iter_hist_img);
-            imwrite("../lena_threshold_Otsu_hist.bmp", lena_threshold_Otsu_hist_img);
+            imwrite("../Test/lena_threshold_T_hist.bmp", lena_threshold_T_hist_img);
+            // imwrite("../Test/lena_threshold_Iter_hist.bmp", lena_threshold_Iter_hist_img);
+            imwrite("../Test/lena_threshold_Otsu_hist.bmp", lena_threshold_Otsu_hist_img);
 
             std::cout << "已进行阈值分割.\n";
         }

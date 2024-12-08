@@ -1,5 +1,7 @@
 /build
-*.bmp
-!rgb.bmp
-!dim.bmp
-!noise.bmp
+/Test/*.bmp
+
+!/Test/rgb.bmp
+!/Test/dim.bmp
+!/Test/noise.bmp
+!/Test/lena.bmp
