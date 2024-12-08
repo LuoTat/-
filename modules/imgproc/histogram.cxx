@@ -626,6 +626,40 @@ static void calcHist_8u(std::vector<uchar*>& _ptrs, const std::vector<int>& _del
     }
 }
 
+void drawHist_T(const Mat& hist, Mat& histImage, uint width, uint height, uchar thresh)
+{
+    Mat hist_norm;
+    normalize(hist, hist_norm, 0, height, NORM_MINMAX, HL_32U);
+    histImage.create(height, width * hist_norm.rows, HL_8UC3);
+
+    for (int y = histImage.rows - 1; y >= 0; --y)
+    {
+        for (int x = 0; x < histImage.cols; x += width)
+        {
+            uint& pixi = hist_norm.at<uint>(x / width);
+            if (pixi == 0)
+            {
+                memset(histImage.ptr(y, x), 255, 3 * width);
+            }
+            else
+            {
+                memset(histImage.ptr(y, x), 0, 3 * width);
+                --pixi;
+            }
+        }
+    }
+    for (int y = 0; y < histImage.rows; ++y)
+    {
+        for (uint x = thresh * width; x < thresh * width + width; ++x)
+        {
+            uchar* ptr = histImage.ptr(y, x);
+            ptr[0]     = 0;
+            ptr[1]     = 0;
+            ptr[2]     = 255;
+        }
+    }
+}
+
 void drawHist(const Mat& hist, Mat& histImage, uint width, uint height)
 {
     Mat hist_norm;

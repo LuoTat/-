@@ -39,6 +39,8 @@ void calcHist(const Mat* images, int nimages, const int* channels, const Mat& ma
 
 void equalizeHist(const Mat& src, Mat& dst);
 
+void drawHist_T(const Mat& hist, Mat& histImage, uint width, uint height, uchar thresh);
+
 void drawHist(const Mat& hist, Mat& histImage, uint width, uint height);
 
 void cvtColor(const Mat& src, Mat& dst, int code, int dstCn = 0);

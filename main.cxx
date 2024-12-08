@@ -95,11 +95,32 @@ int main()
         }
         else if (choice == 6)
         {
-            Mat lena, lena_threshold;
-            lena = imread("../lena.bmp", IMREAD_GRAYSCALE);
-            threshold(lena, lena_threshold, 0, 255, THRESH_TRIANGLE);
-            imwrite("../lena_threshold.bmp", lena_threshold);
-            std::cout << "已进行阈值分割，保存为 lena_threshold.bmp\n";
+            Mat lena = imread("../lena.bmp", IMREAD_GRAYSCALE);
+
+            Mat          lena_hist;
+            int          channels[] = {0};
+            int          histSize[] = {256};
+            float        range[]    = {0, 256};
+            const float* ranges[]   = {range};
+
+            calcHist(&lena, 1, channels, Mat(), lena_hist, 1, histSize, ranges);
+
+            Mat lena_threshold_T, lena_threshold_Iter, lena_threshold_Otsu;
+            Mat lena_threshold_T_hist_img, lena_threshold_Iter_hist_img, lena_threshold_Otsu_hist_img;
+
+            drawHist_T(lena_hist, lena_threshold_T_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_T, 80, 255, THRESH_BINARY)));
+            // drawHist_T(lena_hist, lena_threshold_Iter_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Iter, 114, 255, THRESH_BINARY)));
+            drawHist_T(lena_hist, lena_threshold_Otsu_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Otsu, 0, 255, THRESH_OTSU)));
+
+            imwrite("../lena_threshold_T.bmp", lena_threshold_T);
+            // imwrite("../lena_threshold_Iter.bmp", lena_threshold_Iter);
+            imwrite("../lena_threshold_Otsu.bmp", lena_threshold_Otsu);
+
+            imwrite("../lena_threshold_T_hist.bmp", lena_threshold_T_hist_img);
+            // imwrite("../lena_threshold_Iter_hist.bmp", lena_threshold_Iter_hist_img);
+            imwrite("../lena_threshold_Otsu_hist.bmp", lena_threshold_Otsu_hist_img);
+
+            std::cout << "已进行阈值分割.\n";
         }
         else if (choice == 0)
             std::cout
