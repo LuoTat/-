@@ -130,21 +130,47 @@ public:
     Mat() noexcept;
     Mat(const Mat& m);
     Mat(Mat&& m);
+
     Mat(const double& val);
+
     Mat(int rows, int cols, int type);
     Mat(int rows, int cols, int type, const Scalar& s);
+    Mat(int rows, int cols, int type, void* data, size_t step = AUTO_STEP);
+
     Mat(Size size, int type);
     Mat(Size size, int type, const Scalar& s);
+    Mat(Size size, int type, void* data, size_t step = AUTO_STEP);
+
     Mat(int ndims, const int* sizes, int type);
     Mat(int ndims, const int* sizes, int type, const Scalar& s);
-    Mat(int rows, int cols, int type, void* data, size_t step = AUTO_STEP);
-    Mat(Size size, int type, void* data, size_t step = AUTO_STEP);
     Mat(int ndims, const int* sizes, int type, void* data, const size_t* steps = 0);
+
+    Mat(const std::vector<int>& sizes, int type);
+    Mat(const std::vector<int>& sizes, int type, const Scalar& s);
+    Mat(const std::vector<int>& sizes, int type, void* data, const size_t* steps = 0);
+
+    Mat(const Mat& m, const Range& rowRange, const Range& colRange = Range::all());
+    Mat(const Mat& m, const Rect& roi);
+    Mat(const Mat& m, const Range* ranges);
+    Mat(const Mat& m, const std::vector<Range>& ranges);
+
     ~Mat();
 
     Mat& operator=(const Mat& m);
     Mat& operator=(Mat&& m);
     Mat& operator=(const Scalar& s);
+    Mat  operator()(Range rowRange, Range colRange) const;
+    Mat  operator()(const Rect& roi) const;
+    Mat  operator()(const Range* ranges) const;
+    Mat  operator()(const std::vector<Range>& ranges) const;
+
+
+    Mat row(int y) const;
+    Mat col(int x) const;
+    Mat rowRange(int startrow, int endrow) const;
+    Mat rowRange(const Range& r) const;
+    Mat colRange(int startcol, int endcol) const;
+    Mat colRange(const Range& r) const;
 
     void copyTo(Mat& m) const;
     void copyTo(Mat& m, const Mat& mask) const;
@@ -157,6 +183,8 @@ public:
     void create(int rows, int cols, int type);
     void create(Size size, int type);
     void create(int ndims, const int* sizes, int type);
+    void create(const std::vector<int>& sizes, int type);
+
     void release();
     void locateROI(Size& wholeSize, Point& ofs) const;
     Mat& adjustROI(int dtop, int dbottom, int dleft, int dright);

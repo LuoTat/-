@@ -378,32 +378,6 @@ Mat::Mat(int _rows, int _cols, int _type, const Scalar& _s):
     *this = _s;
 }
 
-Mat::Mat(Size _sz, int _type):
-    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
-{
-    create(_sz.height, _sz.width, _type);
-}
-
-Mat::Mat(Size _sz, int _type, const Scalar& _s):
-    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
-{
-    create(_sz.height, _sz.width, _type);
-    *this = _s;
-}
-
-Mat::Mat(int _dims, const int* _sz, int _type):
-    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
-{
-    create(_dims, _sz, _type);
-}
-
-Mat::Mat(int _dims, const int* _sz, int _type, const Scalar& _s):
-    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
-{
-    create(_dims, _sz, _type);
-    *this = _s;
-}
-
 Mat::Mat(int _rows, int _cols, int _type, void* _data, size_t _step):
     flags(MAGIC_VAL + (_type & TYPE_MASK)), dims(2), rows(_rows), cols(_cols), data((uchar*)_data), datastart((uchar*)_data), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
 {
@@ -429,6 +403,19 @@ Mat::Mat(int _rows, int _cols, int _type, void* _data, size_t _step):
     datalimit = datastart + _step * rows;
     dataend   = datalimit - _step + minstep;
     updateContinuityFlag();
+}
+
+Mat::Mat(Size _sz, int _type):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_sz.height, _sz.width, _type);
+}
+
+Mat::Mat(Size _sz, int _type, const Scalar& _s):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_sz.height, _sz.width, _type);
+    *this = _s;
 }
 
 Mat::Mat(Size _sz, int _type, void* _data, size_t _step):
@@ -458,6 +445,19 @@ Mat::Mat(Size _sz, int _type, void* _data, size_t _step):
     updateContinuityFlag();
 }
 
+Mat::Mat(int _dims, const int* _sz, int _type):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_dims, _sz, _type);
+}
+
+Mat::Mat(int _dims, const int* _sz, int _type, const Scalar& _s):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_dims, _sz, _type);
+    *this = _s;
+}
+
 Mat::Mat(int _dims, const int* _sizes, int _type, void* _data, const size_t* _steps):
     flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
 {
@@ -465,6 +465,152 @@ Mat::Mat(int _dims, const int* _sizes, int _type, void* _data, const size_t* _st
     datastart = data = (uchar*)_data;
     setSize(*this, _dims, _sizes, _steps, true);
     finalizeHdr(*this);
+}
+
+Mat::Mat(const std::vector<int>& _sz, int _type):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_sz, _type);
+}
+
+Mat::Mat(const std::vector<int>& _sz, int _type, const Scalar& _s):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    create(_sz, _type);
+    *this = _s;
+}
+
+Mat::Mat(const std::vector<int>& _sizes, int _type, void* _data, const size_t* _steps):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
+{
+    flags     |= HL_MAT_TYPE(_type);
+    datastart = data = (uchar*)_data;
+    setSize(*this, (int)_sizes.size(), _sizes.data(), _steps, true);
+    finalizeHdr(*this);
+}
+
+Mat::Mat(const Mat& m, const Range& _rowRange, const Range& _colRange):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
+{
+    HL_Assert(m.dims >= 2);
+    if (m.dims > 2)
+    {
+        AutoBuffer<Range> rs(m.dims);
+        rs[0] = _rowRange;
+        rs[1] = _colRange;
+        for (int i = 2; i < m.dims; i++)
+            rs[i] = Range::all();
+        *this = m(rs.data());
+        return;
+    }
+
+    *this = m;
+    try
+    {
+        if (_rowRange != Range::all() && _rowRange != Range(0, rows))
+        {
+            HL_Assert(0 <= _rowRange.start && _rowRange.start <= _rowRange.end
+                      && _rowRange.end <= m.rows);
+            rows   = _rowRange.size();
+            data  += step * _rowRange.start;
+            flags |= SUBMATRIX_FLAG;
+        }
+
+        if (_colRange != Range::all() && _colRange != Range(0, cols))
+        {
+            HL_Assert(0 <= _colRange.start && _colRange.start <= _colRange.end
+                      && _colRange.end <= m.cols);
+            cols   = _colRange.size();
+            data  += _colRange.start * elemSize();
+            flags |= SUBMATRIX_FLAG;
+        }
+    }
+    catch (...)
+    {
+        release();
+        throw;
+    }
+
+    updateContinuityFlag();
+
+    if (rows <= 0 || cols <= 0)
+    {
+        release();
+        rows = cols = 0;
+    }
+}
+
+Mat::Mat(const Mat& m, const Rect& roi):
+    flags(m.flags), dims(2), rows(roi.height), cols(roi.width), data(m.data + roi.y * m.step[0]), datastart(m.datastart), dataend(m.dataend), datalimit(m.datalimit), allocator(m.allocator), u(m.u), size(&rows)
+{
+    HL_Assert(m.dims <= 2);
+
+    size_t esz  = HL_ELEM_SIZE(flags);
+    data       += roi.x * esz;
+    HL_Assert(0 <= roi.x && 0 <= roi.width && roi.x + roi.width <= m.cols && 0 <= roi.y && 0 <= roi.height && roi.y + roi.height <= m.rows);
+    if (roi.width < m.cols || roi.height < m.rows)
+        flags |= SUBMATRIX_FLAG;
+
+    step[0] = m.step[0];
+    step[1] = esz;
+    updateContinuityFlag();
+
+    addref();
+    if (rows <= 0 || cols <= 0)
+    {
+        rows = cols = 0;
+        release();
+    }
+}
+
+Mat::Mat(const Mat& m, const Range* ranges):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
+{
+    int d = m.dims;
+
+    HL_Assert(ranges);
+    for (int i = 0; i < d; i++)
+    {
+        Range r = ranges[i];
+        HL_Assert(r == Range::all() || (0 <= r.start && r.start < r.end && r.end <= m.size[i]));
+    }
+    *this = m;
+    for (int i = 0; i < d; i++)
+    {
+        Range r = ranges[i];
+        if (r != Range::all() && r != Range(0, size.p[i]))
+        {
+            size.p[i]  = r.end - r.start;
+            data      += r.start * step.p[i];
+            flags     |= SUBMATRIX_FLAG;
+        }
+    }
+    updateContinuityFlag();
+}
+
+Mat::Mat(const Mat& m, const std::vector<Range>& ranges):
+    flags(MAGIC_VAL), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
+{
+    int d = m.dims;
+
+    HL_Assert((int)ranges.size() == d);
+    for (int i = 0; i < d; i++)
+    {
+        Range r = ranges[i];
+        HL_Assert(r == Range::all() || (0 <= r.start && r.start < r.end && r.end <= m.size[i]));
+    }
+    *this = m;
+    for (int i = 0; i < d; i++)
+    {
+        Range r = ranges[i];
+        if (r != Range::all() && r != Range(0, size.p[i]))
+        {
+            size.p[i]  = r.end - r.start;
+            data      += r.start * step.p[i];
+            flags     |= SUBMATRIX_FLAG;
+        }
+    }
+    updateContinuityFlag();
 }
 
 Mat::~Mat()
@@ -729,6 +875,11 @@ void Mat::create(int d, const int* _sizes, int _type)
 
     addref();
     finalizeHdr(*this);
+}
+
+void Mat::create(const std::vector<int>& _sizes, int _type)
+{
+    create((int)_sizes.size(), _sizes.data(), _type);
 }
 
 void Mat::addref()

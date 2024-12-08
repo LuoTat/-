@@ -15,6 +15,7 @@ void showMenu()
     std::cout << "3. 分离图像通道\n";
     std::cout << "4. 直方图处理\n";
     std::cout << "5. 图像平滑处理\n";
+    std::cout << "6. 阈值分割\n";
     std::cout << "0. 退出\n";
     std::cout << "===========================\n";
     std::cout << "请输入数字来运行功能：";
@@ -91,6 +92,14 @@ int main()
             blur(noise, noise_blur, Size(5, 5));
             imwrite("../noise_medianblur.bmp", noise_medianblur);
             imwrite("../noise_blur.bmp", noise_blur);
+        }
+        else if (choice == 6)
+        {
+            Mat lena, lena_threshold;
+            lena = imread("../lena.bmp", IMREAD_GRAYSCALE);
+            threshold(lena, lena_threshold, 0, 255, THRESH_TRIANGLE);
+            imwrite("../lena_threshold.bmp", lena_threshold);
+            std::cout << "已进行阈值分割，保存为 lena_threshold.bmp\n";
         }
         else if (choice == 0)
             std::cout

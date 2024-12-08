@@ -6,6 +6,7 @@ set(SOURCES
     histogram.cxx
     median_blur.dispatch.cxx
     tables.cxx
+    thresh.cxx
 )
 
 add_library(openHL_imgproc STATIC ${SOURCES})

@@ -36,8 +36,9 @@ namespace hl
 #define HL_CheckGT(v1, v2, msg)       HL_CHECK(v1, GT, v2, msg)
 
 #define HL_CheckTypeEQ(t1, t2, msg)   HL_CHECK(t1, EQ, t2, msg)
-#define HL_Check(test_expr, msg)      HL__CHECK_CUSTOM_TEST(test_expr, msg)
+#define HL_CheckType(test_expr, msg)  HL__CHECK_CUSTOM_TEST(test_expr, msg)
 #define HL_CheckDepth(test_expr, msg) HL__CHECK_CUSTOM_TEST(test_expr, msg)
+#define HL_Check(test_expr, msg)      HL__CHECK_CUSTOM_TEST(test_expr, msg)
 
 #ifndef NDEBUG
     #define HL_DbgCheck(test_expr, msg) HL_Check(test_expr, msg)

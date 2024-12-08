@@ -4,6 +4,56 @@ namespace hl
 {
 //////////////////////////////////////////// Mat //////////////////////////////////////////
 
+inline Mat Mat::row(int y) const
+{
+    return Mat(*this, Range(y, y + 1), Range::all());
+}
+
+inline Mat Mat::col(int x) const
+{
+    return Mat(*this, Range::all(), Range(x, x + 1));
+}
+
+inline Mat Mat::rowRange(int startrow, int endrow) const
+{
+    return Mat(*this, Range(startrow, endrow), Range::all());
+}
+
+inline Mat Mat::rowRange(const Range& r) const
+{
+    return Mat(*this, r, Range::all());
+}
+
+inline Mat Mat::colRange(int startcol, int endcol) const
+{
+    return Mat(*this, Range::all(), Range(startcol, endcol));
+}
+
+inline Mat Mat::colRange(const Range& r) const
+{
+    return Mat(*this, Range::all(), r);
+}
+
+inline Mat Mat::operator()(Range _rowRange, Range _colRange) const
+{
+    return Mat(*this, _rowRange, _colRange);
+}
+
+inline Mat Mat::operator()(const Rect& roi) const
+{
+    return Mat(*this, roi);
+}
+
+inline Mat Mat::operator()(const Range* ranges) const
+{
+    return Mat(*this, ranges);
+}
+
+inline Mat Mat::operator()(const std::vector<Range>& ranges) const
+{
+    return Mat(*this, ranges);
+}
+
 inline bool Mat::isContinuous() const
 {
     return (flags & CONTINUOUS_FLAG) != 0;
