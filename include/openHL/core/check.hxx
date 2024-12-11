@@ -4,6 +4,7 @@
 
 namespace hl
 {
+
 #define HL_TEST_EQ(v1, v2) ((v1) == (v2))
 #define HL_TEST_NE(v1, v2) ((v1) != (v2))
 #define HL_TEST_LE(v1, v2) ((v1) <= (v2))
@@ -57,6 +58,5 @@ namespace hl
     #define HL_DbgCheckGE(v1, v2, msg)
     #define HL_DbgCheckGT(v1, v2, msg)
 #endif
-
 
 }    // namespace hl

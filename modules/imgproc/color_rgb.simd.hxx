@@ -144,6 +144,7 @@ struct RGB2Gray<float>
     int   srccn;
     float coeffs[3];
 };
+
 }    // namespace
 
 void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int scn, bool swapBlue);
@@ -158,9 +159,6 @@ void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_
     else
         CvtColorLoop(src_data, src_step, dst_data, dst_step, width, height, RGB2Gray<float>(scn, blueIdx, 0));
 }
-
-
-
 
 }    // namespace cpu_baseline
 }    // namespace hal

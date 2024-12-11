@@ -123,6 +123,7 @@ static void ofs2idx(const Mat& a, size_t ofs, int* idx)
             idx[i] = -1;
     }
 }
+
 }    // namespace hl
 
 void hl::minMaxIdx(const Mat& _src, double* minVal, double* maxVal, int* minIdx, int* maxIdx, const Mat& _mask)

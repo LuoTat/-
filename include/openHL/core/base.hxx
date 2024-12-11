@@ -9,6 +9,7 @@ namespace hl
 {
 namespace Error
 {
+
 enum Code
 {
     StsOk                     = 0,
@@ -67,6 +68,7 @@ enum Code
     OpenCLInitError           = -222,
     OpenCLNoAMDBlasFft        = -223
 };
+
 }    // namespace Error
 
 enum NormTypes
@@ -117,9 +119,6 @@ void error(int _code, const String& _err, const char* _func, const char* _file, 
     #define HL_DbgAssert(expr)
 #endif
 
-
-
-
 ////////////////// forward declarations for important OpenCV types //////////////////
 
 //! @cond IGNORED
@@ -133,6 +132,7 @@ template <typename _Tp> class Point3_;
 template <typename _Tp> class Size_;
 template <typename _Tp> class Rect_;
 template <typename _Tp> class Scalar_;
+
 }    // namespace hl
 
 #include "openHL/core/check.hxx"

@@ -59,4 +59,5 @@ void Mat::convertTo(Mat& _dst, int _type, double alpha, double beta) const
             func(ptrs[0], 1, 0, 0, ptrs[1], 1, sz, scale);
     }
 }
+
 }    // namespace hl

@@ -8,6 +8,7 @@
 
 namespace hl
 {
+    
 BaseRowFilter::BaseRowFilter() { ksize = anchor = -1; }
 
 BaseRowFilter::~BaseRowFilter() {}
@@ -139,4 +140,5 @@ void FilterEngine::apply(const Mat& src, Mat& dst, const Size& wsz, const Point&
 
     cpu_baseline ::FilterEngine__apply(*this, src, dst, wsz, ofs);
 }
+
 }    // namespace hl

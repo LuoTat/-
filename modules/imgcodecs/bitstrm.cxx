@@ -519,4 +519,5 @@ void WMByteStream::putDWord(int val)
         putByte(val);
     }
 }
+
 }    // namespace hl

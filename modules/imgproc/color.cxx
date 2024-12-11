@@ -3,6 +3,7 @@
 
 namespace hl
 {
+
 void cvtColor(const Mat& _src, Mat& _dst, int code, int dcn)
 {
     HL_Assert(!_src.empty());
@@ -22,4 +23,5 @@ void cvtColor(const Mat& _src, Mat& _dst, int code, int dcn)
             break;
     }
 }
+
 }    // namespace hl

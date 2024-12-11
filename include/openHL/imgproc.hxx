@@ -5,6 +5,29 @@
 namespace hl
 {
 
+enum InterpolationFlags
+{
+    INTER_NEAREST       = 0,
+    INTER_LINEAR        = 1,
+    INTER_CUBIC         = 2,
+    INTER_AREA          = 3,
+    INTER_LANCZOS4      = 4,
+    INTER_LINEAR_EXACT  = 5,
+    INTER_NEAREST_EXACT = 6,
+    INTER_MAX           = 7,
+    WARP_FILL_OUTLIERS  = 8,
+    WARP_INVERSE_MAP    = 16,
+    WARP_RELATIVE_MAP   = 32
+};
+
+enum InterpolationMasks
+{
+    INTER_BITS      = 5,
+    INTER_BITS2     = INTER_BITS * 2,
+    INTER_TAB_SIZE  = 1 << INTER_BITS,
+    INTER_TAB_SIZE2 = INTER_TAB_SIZE * INTER_TAB_SIZE
+};
+
 enum ThresholdTypes
 {
     THRESH_BINARY     = 0,
@@ -32,6 +55,12 @@ void medianBlur(const Mat& src, Mat& dst, int ksize);
 void boxFilter(const Mat& src, Mat& dst, int ddepth, Size ksize, Point anchor = Point(-1, -1), bool normalize = true, int borderType = BORDER_DEFAULT);
 
 void blur(const Mat& src, Mat& dst, Size ksize, Point anchor = Point(-1, -1), int borderType = BORDER_DEFAULT);
+
+void resize(const Mat& src, Mat& dst, Size dsize, double fx = 0, double fy = 0, int interpolation = INTER_LINEAR);
+
+void warpAffine(const Mat& src, Mat& dst, const Mat& M, Size dsize, int flags = INTER_LINEAR, int borderMode = BORDER_CONSTANT, const Scalar& borderValue = Scalar());
+
+void remap(const Mat& src, Mat& dst, const Mat& map1, const Mat& map2, int interpolation, int borderMode = BORDER_CONSTANT, const Scalar& borderValue = Scalar());
 
 double threshold(const Mat& src, Mat& dst, double thresh, double maxval, int type);
 

@@ -19,4 +19,5 @@ public:
 
     virtual void freeAllReservedBuffers() override {}
 };
+
 }    // namespace hl

@@ -2,6 +2,7 @@
 
 namespace hl
 {
+
 int validateToInt(size_t step);
 
 struct PaletteEntry
@@ -38,4 +39,5 @@ uchar* FillColorRow4(uchar* data, uchar* indices, int len, PaletteEntry* palette
 uchar* FillGrayRow4(uchar* data, uchar* indices, int len, uchar* palette);
 uchar* FillColorRow1(uchar* data, uchar* indices, int len, PaletteEntry* palette);
 uchar* FillGrayRow1(uchar* data, uchar* indices, int len, uchar* palette);
+
 }    // namespace hl

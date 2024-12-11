@@ -13,4 +13,5 @@ public:
     virtual void   setMaxReservedSize(size_t size) = 0;
     virtual void   freeAllReservedBuffers()        = 0;
 };
+
 }    // namespace hl

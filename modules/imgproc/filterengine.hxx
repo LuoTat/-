@@ -4,6 +4,7 @@
 
 namespace hl
 {
+
 enum
 {
     KERNEL_GENERAL      = 0,
@@ -133,4 +134,5 @@ public:
     Ptr<BaseRowFilter>    rowFilter;
     Ptr<BaseColumnFilter> columnFilter;
 };
+
 }    // namespace hl

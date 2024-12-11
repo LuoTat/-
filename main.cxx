@@ -88,6 +88,16 @@ int main()
         }
         else if (choice == 4)
         {
+            Mat lena = imread("../Test/lena.bmp", IMREAD_GRAYSCALE);
+            Mat lena_resize, lena_flip;
+
+            // 缩放
+            resize(lena, lena_resize, Size(4096, 4096), INTER_LANCZOS4);
+            imwrite("../Test/lena_resize.bmp", lena_resize);
+
+            // 翻转
+            flip(lena, lena_flip, 1);
+            imwrite("../Test/lena_flip.bmp", lena_flip);
         }
         else if (choice == 5)
         {

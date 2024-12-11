@@ -373,6 +373,7 @@ Mat& Mat::setTo(const Mat& _value, const Mat& _mask)
     }
     return *this;
 }
+
 }    // namespace hl
 
 int hl::borderInterpolate(int p, int len, int borderType)

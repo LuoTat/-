@@ -10,6 +10,7 @@
 
 namespace hl
 {
+
 ////////////////////////////// Small Matrix ///////////////////////////
 
 struct Matx_AddOp
@@ -1288,4 +1289,5 @@ inline Vec<_Tp, 4>& operator*=(Vec<_Tp, 4>& v1, const Vec<_Tp, 4>& v2)
     v1 = v1 * v2;
     return v1;
 }
+
 }    // namespace hl

@@ -25,4 +25,5 @@ enum ImreadModes
 Mat imread(const String& filename, int flags = IMREAD_COLOR);
 
 bool imwrite(const String& filename, const Mat& img, const std::vector<int>& params = std::vector<int>());
+
 }    // namespace hl

@@ -4,6 +4,7 @@
 
 namespace hl
 {
+
 Ptr<FilterEngine> createBoxFilter(int srcType, int dstType, Size ksize, Point anchor, bool normalize, int borderType)
 {
     return cpu_baseline::createBoxFilter(srcType, dstType, ksize, anchor, normalize, borderType);
@@ -43,4 +44,5 @@ void blur(const Mat& src, Mat& dst, Size ksize, Point anchor, int borderType)
 {
     boxFilter(src, dst, -1, ksize, anchor, true, borderType);
 }
+
 }    // namespace hl

@@ -11,7 +11,6 @@
 namespace hl
 {
 
-
 const static size_t HL_IO_MAX_IMAGE_PARAMS = 50;
 const static size_t HL_IO_MAX_IMAGE_WIDTH  = 1 << 20;
 const static size_t HL_IO_MAX_IMAGE_HEIGHT = 1 << 20;
@@ -197,8 +196,7 @@ static bool imread_(const String& filename, int flags, Mat& mat)
 
     if (decoder->setScale(scale_denom) > 1)
     {
-        // TODO: implement resize
-        // resize(mat, mat, Size(size.width / scale_denom, size.height / scale_denom), 0, 0, INTER_LINEAR_EXACT);
+        resize(mat, mat, Size(size.width / scale_denom, size.height / scale_denom), 0, 0, INTER_LINEAR_EXACT);
     }
 
     return true;
@@ -278,4 +276,5 @@ bool imwrite(const String& filename, const Mat& _img, const std::vector<int>& pa
     HL_Assert(!_img.empty());
     return imwrite_(filename, _img, params, false);
 }
+
 }    // namespace hl

@@ -133,15 +133,6 @@ void ihlCvt_BGR5652BGR_8u_C2C3R(const uchar* bgr565, int bgr565_step, uchar* bgr
     }
 }
 
-void CvtPaletteToGray(const PaletteEntry* palette, uchar* grayPalette, int entries)
-{
-    int i;
-    for (i = 0; i < entries; i++)
-    {
-        ihlCvt_BGR2Gray_8u_C3C1R((uchar*)(palette + i), 0, grayPalette + i, 0, Size(1, 1));
-    }
-}
-
 void FillGrayPalette(PaletteEntry* palette, int bpp, bool negative)
 {
     int i, length = 1 << bpp;
@@ -166,6 +157,15 @@ bool IsColorPalette(PaletteEntry* palette, int bpp)
     }
 
     return false;
+}
+
+void CvtPaletteToGray(const PaletteEntry* palette, uchar* grayPalette, int entries)
+{
+    int i;
+    for (i = 0; i < entries; i++)
+    {
+        ihlCvt_BGR2Gray_8u_C3C1R((uchar*)(palette + i), 0, grayPalette + i, 0, Size(1, 1));
+    }
 }
 
 uchar* FillUniColor(uchar* data, uchar*& line_end, int step, int width3, int& y, int height, int count3, PaletteEntry clr)
@@ -347,4 +347,5 @@ uchar* FillGrayRow1(uchar* data, uchar* indices, int len, uchar* palette)
 
     return data;
 }
+
 }    // namespace hl

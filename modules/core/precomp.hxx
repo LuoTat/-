@@ -20,6 +20,9 @@
 #include <cstring>
 #include <cassert>
 
+#include "openHL/core/hal/hal.hxx"
+#include "openHL/core/hal/intrin.hxx"
+
 namespace hl
 {
 
@@ -29,6 +32,7 @@ typedef void (*BinaryFuncC)(const uchar* src1, size_t step1, const uchar* src2, 
 
 BinaryFunc getConvertFunc(int sdepth, int ddepth);
 BinaryFunc getConvertScaleFunc(int sdepth, int ddepth);
+BinaryFunc getCopyMaskFunc(size_t esz);
 
 Size getContinuousSize2D(Mat& m1, int widthScale = 1);
 Size getContinuousSize2D(Mat& m1, Mat& m2, int widthScale = 1);
@@ -57,10 +61,14 @@ inline bool checkScalar(const Mat& sc, int atype)
     return sz == Size(1, 1) || sz == Size(1, cn) || sz == Size(cn, 1) || (sz == Size(1, 4) && sc.type() == HL_64F && cn <= 4);
 }
 
+void convertAndUnrollScalar(const Mat& sc, int buftype, uchar* scbuf, size_t blocksize);
+
+
 #define HL_SINGLETON_LAZY_INIT_(TYPE, INITIALIZER, RET_VALUE) \
     static TYPE* const instance = INITIALIZER;                \
     return RET_VALUE;
 
 #define HL_SINGLETON_LAZY_INIT(TYPE, INITIALIZER)     HL_SINGLETON_LAZY_INIT_(TYPE, INITIALIZER, instance)
 #define HL_SINGLETON_LAZY_INIT_REF(TYPE, INITIALIZER) HL_SINGLETON_LAZY_INIT_(TYPE, INITIALIZER, *instance)
+
 }    // namespace hl

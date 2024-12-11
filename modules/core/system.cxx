@@ -5,6 +5,7 @@
 
 namespace hl
 {
+
 Exception::Exception()
 {
     code = 0;

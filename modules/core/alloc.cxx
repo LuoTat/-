@@ -8,6 +8,7 @@
 
 namespace hl
 {
+
 static void* OutOfMemoryError(size_t size)
 {
     HL_Error_(HL_StsNoMem, ("Failed to allocate {} bytes", (unsigned long long)size));

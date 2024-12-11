@@ -5,6 +5,8 @@
 
 #include "openHL/imgproc/imgproc_c.h"
 #include "openHL/core/private.hxx"
+#include "openHL/imgproc/hal/hal.hxx"
+
 
 #include <math.h>
 #include <string.h>

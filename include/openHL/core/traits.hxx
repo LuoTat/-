@@ -4,6 +4,7 @@
 
 namespace hl
 {
+
 template <typename _Tp> class DataType
 {
 public:

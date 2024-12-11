@@ -44,4 +44,5 @@ void normalize(const Mat& _src, Mat& _dst, double a, double b, int norm_type, in
         temp.copyTo(_dst, _mask);
     }
 }
+
 }    // namespace hl

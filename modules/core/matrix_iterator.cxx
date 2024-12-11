@@ -176,4 +176,5 @@ NAryMatIterator NAryMatIterator::operator++(int)
     ++*this;
     return it;
 }
+
 }    // namespace hl

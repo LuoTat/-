@@ -53,6 +53,37 @@ inline static size_t alignSize(size_t sz, int n)
     return (sz + n - 1) & -n;
 }
 
+template <int N, typename T>
+inline static bool isAligned(const T& data)
+{
+    HL_StaticAssert((N & (N - 1)) == 0, "");    // power of 2
+    return (((size_t)data) & (N - 1)) == 0;
+}
+
+template <int N>
+inline static bool isAligned(const void* p1)
+{
+    return isAligned<N>((size_t)p1);
+}
+
+template <int N>
+inline static bool isAligned(const void* p1, const void* p2)
+{
+    return isAligned<N>(((size_t)p1) | ((size_t)p2));
+}
+
+template <int N>
+inline static bool isAligned(const void* p1, const void* p2, const void* p3)
+{
+    return isAligned<N>(((size_t)p1) | ((size_t)p2) | ((size_t)p3));
+}
+
+template <int N>
+inline static bool isAligned(const void* p1, const void* p2, const void* p3, const void* p4)
+{
+    return isAligned<N>(((size_t)p1) | ((size_t)p2) | ((size_t)p3) | ((size_t)p4));
+}
+
 inline static size_t getElemSize(int type) { return (size_t)HL_ELEM_SIZE(type); }
 
 /////////////////////////////// Parallel Primitives //////////////////////////////////
@@ -180,4 +211,5 @@ inline size_t AutoBuffer<_Tp, fixed_size>::size() const
 {
     return sz;
 }
+
 }    // namespace hl

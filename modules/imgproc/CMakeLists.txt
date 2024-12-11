@@ -4,7 +4,9 @@ set(SOURCES
     color.cxx
     filter.dispatch.cxx
     histogram.cxx
+    imgwarp.cxx
     median_blur.dispatch.cxx
+    resize.cxx
     tables.cxx
     thresh.cxx
 )

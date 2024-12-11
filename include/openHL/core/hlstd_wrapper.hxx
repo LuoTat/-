@@ -150,4 +150,5 @@ template <typename _Tp, typename... A1> inline static Ptr<_Tp> makePtr(const A1&
     static_assert(!has_custom_delete<_Tp>::value, "Can't use this makePtr with custom DefaultDeleter");
     return (Ptr<_Tp>)std::make_shared<_Tp>(a1...);
 }
+
 }    // namespace hl

@@ -169,4 +169,5 @@ template <> inline uint64 saturate_cast<uint64>(int v) { return (uint64)std::max
 template <> inline uint64 saturate_cast<uint64>(int64 v) { return (uint64)std::max(v, (int64)0); }
 
 template <> inline int64 saturate_cast<int64>(uint64 v) { return (int64)std::min(v, (uint64)LLONG_MAX); }
+
 }    // namespace hl

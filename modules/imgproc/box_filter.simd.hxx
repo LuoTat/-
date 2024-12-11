@@ -4,11 +4,11 @@ namespace hl
 {
 namespace cpu_baseline
 {
+
 // forward declarations
 Ptr<BaseRowFilter>    getRowSumFilter(int srcType, int sumType, int ksize, int anchor);
 Ptr<BaseColumnFilter> getColumnSumFilter(int sumType, int dstType, int ksize, int anchor, double scale);
 Ptr<FilterEngine>     createBoxFilter(int srcType, int dstType, Size ksize, Point anchor, bool normalize, int borderType);
-Ptr<BaseRowFilter>    getSqrRowSumFilter(int srcType, int sumType, int ksize, int anchor);
 
 /****************************************************************************************\
                                          Box Filter
@@ -807,5 +807,6 @@ Ptr<FilterEngine> createBoxFilter(int srcType, int dstType, Size ksize, Point an
 
     return makePtr<FilterEngine>(Ptr<BaseFilter>(), rowFilter, columnFilter, srcType, dstType, sumType, borderType);
 }
+
 }    // namespace cpu_baseline
 }    // namespace hl

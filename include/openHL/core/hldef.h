@@ -19,6 +19,43 @@
     #define HL_DECL_ALIGNED(x)
 #endif
 
+#ifndef HL_ALWAYS_INLINE
+    #if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+        #define HL_ALWAYS_INLINE inline __attribute__((always_inline))
+    #elif defined(_MSC_VER)
+        #define HL_ALWAYS_INLINE __forceinline
+    #else
+        #define HL_ALWAYS_INLINE inline
+    #endif
+#endif
+
+#ifdef __GNUC__
+    #define HL_DECL_ALIGNED(x) __attribute__((aligned(x)))
+#elif defined _MSC_VER
+    #define HL_DECL_ALIGNED(x) __declspec(align(x))
+#else
+    #define HL_DECL_ALIGNED(x)
+#endif
+
+/* fundamental constants */
+#define HL_PI   3.1415926535897932384626433832795
+#define HL_2PI  6.283185307179586476925286766559
+#define HL_LOG2 0.69314718055994530941723212145818
+
+typedef union Hl32suf
+{
+    int      i;
+    unsigned u;
+    float    f;
+} Hl32suf;
+
+typedef union Hl64suf
+{
+    int64  i;
+    uint64 u;
+    double f;
+} Hl64suf;
+
 /****************************************************************************************\
 *                                  Matrix type (Mat)                                     *
 \****************************************************************************************/

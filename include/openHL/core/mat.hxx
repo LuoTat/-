@@ -172,6 +172,8 @@ public:
     Mat colRange(int startcol, int endcol) const;
     Mat colRange(const Range& r) const;
 
+    [[nodiscard]]
+    Mat  clone() const;
     void copyTo(Mat& m) const;
     void copyTo(Mat& m, const Mat& mask) const;
     void convertTo(Mat& m, int rtype, double alpha = 1, double beta = 0) const;

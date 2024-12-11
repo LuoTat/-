@@ -2,9 +2,9 @@
 
 namespace hl
 {
-
 namespace cpu_baseline
 {
+
 BinaryFunc getConvertScaleFunc(int sdepth, int ddepth);
 
 template <typename _Ts, typename _Td>
@@ -142,5 +142,6 @@ BinaryFunc getConvertScaleFunc(int sdepth, int ddepth)
         {(cvtScale64f8u), (cvtScale64f8s), (cvtScale64f16u), (cvtScale64f16s), (cvtScale64f32u), (cvtScale64f32s), (cvtScale64f32f), (cvtScale64f)}};
     return cvtScaleTab[HL_MAT_DEPTH(sdepth)][HL_MAT_DEPTH(ddepth)];
 }
+
 }    // namespace cpu_baseline
 }    // namespace hl

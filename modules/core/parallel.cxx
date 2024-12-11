@@ -123,4 +123,5 @@ static void parallel_for_impl(const hl::Range& range, const hl::ParallelLoopBody
 
     body(range);
 }
+
 }    // namespace hl

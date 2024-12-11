@@ -100,6 +100,7 @@ void split64s(const int64* src, int64** dst, int len, int cn)
 {
     split_(src, dst, len, cn);
 }
+
 }    // namespace cpu_baseline
 }    // namespace hal
-}    // namespace cv
+}    // namespace hl

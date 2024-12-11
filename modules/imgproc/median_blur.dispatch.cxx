@@ -4,6 +4,7 @@
 
 namespace hl
 {
+
 void medianBlur(const Mat& _src0, Mat& _dst, int ksize)
 {
     HL_Assert(!_src0.empty());
@@ -22,4 +23,5 @@ void medianBlur(const Mat& _src0, Mat& _dst, int ksize)
 
     cpu_baseline::medianBlur(src0, dst, ksize);
 }
+
 }    // namespace hl

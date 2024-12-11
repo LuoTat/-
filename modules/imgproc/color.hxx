@@ -37,4 +37,5 @@ inline int dstChannels(int code)
 using namespace impl;
 
 void cvtColorBGR2Gray(const Mat& _src, Mat& _dst, bool swapb);
+
 }    // namespace hl

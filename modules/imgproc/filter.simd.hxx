@@ -7,6 +7,7 @@ namespace hl
 {
 namespace cpu_baseline
 {
+
 // forward declarations
 int                   FilterEngine__start(FilterEngine& this_, const Size& _wholeSize, const Size& sz, const Point& ofs);
 int                   FilterEngine__proceed(FilterEngine& this_, const uchar* src, int srcstep, int count, uchar* dst, int dststep);
@@ -233,8 +234,6 @@ void FilterEngine__apply(FilterEngine& this_, const Mat& src, Mat& dst, const Si
                           dst.ptr(),
                           (int)dst.step);
 }
-
-
 
 }    // namespace cpu_baseline
 }    // namespace hl

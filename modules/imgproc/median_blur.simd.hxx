@@ -5,6 +5,7 @@ namespace hl
 {
 namespace cpu_baseline
 {
+
 static void medianBlur_8u_O1(const Mat& _src, Mat& _dst, int ksize)
 {
     typedef ushort HT;
@@ -865,5 +866,6 @@ void medianBlur(const Mat& src0, Mat& dst, int ksize)
             medianBlur_8u_O1(src, dst, ksize);
     }
 }
+
 }    // namespace cpu_baseline
 }    // namespace hl

@@ -98,4 +98,5 @@ void UMatData::unlock()
     size_t idx = getUMatDataLockIndex(this);
     umatLocks[idx].unlock();
 }
+
 }    // namespace hl

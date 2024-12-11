@@ -694,6 +694,13 @@ Mat& Mat::operator=(Mat&& m)
     return *this;
 }
 
+Mat Mat::clone() const
+{
+    Mat m;
+    copyTo(m);
+    return m;
+}
+
 Mat Mat::reshape(int new_cn, int new_rows) const
 {
     int cn  = channels();
@@ -1069,6 +1076,5 @@ Size getContinuousSize2D(Mat& m1, Mat& m2, Mat& m3, int widthScale)
     }
     return getContinuousSize_(m1.flags & m2.flags & m3.flags, m1.cols, m1.rows, widthScale);
 }
-
 
 }    // namespace hl
