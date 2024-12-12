@@ -15,6 +15,7 @@
 
 namespace hl
 {
+
 inline static uchar abs(uchar a) { return a; }
 
 inline static ushort abs(ushort a) { return a; }
@@ -31,6 +32,7 @@ using std::min;
 using std::pow;
 using std::sqrt;
 using std::swap;
+
 }    // namespace hl
 
 #include "hlstd_wrapper.hxx"

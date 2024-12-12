@@ -89,15 +89,25 @@ int main()
         else if (choice == 4)
         {
             Mat lena = imread("../Test/lena.bmp", IMREAD_GRAYSCALE);
-            Mat lena_resize, lena_flip;
+            Mat lena_resize, lena_shift, lena_flip, lena_rotate;
 
             // 缩放
             resize(lena, lena_resize, Size(4096, 4096), INTER_LANCZOS4);
             imwrite("../Test/lena_resize.bmp", lena_resize);
 
+            // 平移
+            Mat shift = (Mat)Matx<float, 2, 3>(1, 0, 100, 0, 1, 100);
+            warpAffine(lena, lena_shift, shift, lena.size());
+            imwrite("../Test/lena_shift.bmp", lena_shift);
+
             // 翻转
             flip(lena, lena_flip, 1);
             imwrite("../Test/lena_flip.bmp", lena_flip);
+
+            // 旋转
+            Mat rotate = getRotationMatrix2D(Point(lena.cols / 2, lena.rows / 2), 45, 1);
+            warpAffine(lena, lena_rotate, rotate, lena.size());
+            imwrite("../Test/lena_rotate.bmp", lena_rotate);
         }
         else if (choice == 5)
         {

@@ -1,9 +1,147 @@
 #pragma once
 
+// #ifdef _MSC_VER
+//     #pragma warning(push)
+//     #pragma warning(disable : 4127 5054)
+// #endif
+
+// #if defined(CV_SKIP_DISABLE_CLANG_ENUM_WARNINGS)
+// // nothing
+// #elif defined(CV_FORCE_DISABLE_CLANG_ENUM_WARNINGS)
+//     #define CV_DISABLE_CLANG_ENUM_WARNINGS
+// #elif defined(__clang__) && defined(__has_warning)
+//     #if __has_warning("-Wdeprecated-enum-enum-conversion") && __has_warning("-Wdeprecated-anon-enum-enum-conversion")
+//         #define CV_DISABLE_CLANG_ENUM_WARNINGS
+//     #endif
+// #endif
+// #ifdef CV_DISABLE_CLANG_ENUM_WARNINGS
+//     #pragma clang diagnostic push
+//     #pragma clang diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+//     #pragma clang diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
+// #endif
+
 namespace hl
 {
 
 //////////////////////////////////////////// Mat //////////////////////////////////////////
+
+template <typename _Tp>
+inline Mat::Mat(const std::vector<_Tp>& vec, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows((int)vec.size()), cols(1), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (vec.empty())
+        return;
+    if (!copyData)
+    {
+        step[0] = step[1] = sizeof(_Tp);
+        datastart = data = (uchar*)&vec[0];
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+        Mat((int)vec.size(), 1, traits::Type<_Tp>::value, (uchar*)&vec[0]).copyTo(*this);
+}
+
+template <typename _Tp, typename>
+inline Mat::Mat(const std::initializer_list<_Tp> list):
+    Mat()
+{
+    HL_Assert(list.size() != 0);
+    Mat((int)list.size(), 1, traits::Type<_Tp>::value, (uchar*)list.begin()).copyTo(*this);
+}
+
+template <typename _Tp>
+inline Mat::Mat(const std::initializer_list<int> sizes, const std::initializer_list<_Tp> list):
+    Mat()
+{
+    size_t size_total = 1;
+    for (auto s : sizes)
+        size_total *= s;
+    HL_Assert(list.size() != 0);
+    HL_Assert(size_total == list.size());
+    Mat((int)sizes.size(), (int*)sizes.begin(), traits::Type<_Tp>::value, (uchar*)list.begin()).copyTo(*this);
+}
+
+template <typename _Tp, std::size_t _Nm>
+inline Mat::Mat(const std::array<_Tp, _Nm>& arr, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows((int)arr.size()), cols(1), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (arr.empty())
+        return;
+    if (!copyData)
+    {
+        step[0] = step[1] = sizeof(_Tp);
+        datastart = data = (uchar*)arr.data();
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+        Mat((int)arr.size(), 1, traits::Type<_Tp>::value, (uchar*)arr.data()).copyTo(*this);
+}
+
+template <typename _Tp, int n>
+inline Mat::Mat(const Vec<_Tp, n>& vec, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows(n), cols(1), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (!copyData)
+    {
+        step[0] = step[1] = sizeof(_Tp);
+        datastart = data = (uchar*)vec.val;
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+        Mat(n, 1, traits::Type<_Tp>::value, (void*)vec.val).copyTo(*this);
+}
+
+template <typename _Tp, int m, int n>
+inline Mat::Mat(const Matx<_Tp, m, n>& M, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows(m), cols(n), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (!copyData)
+    {
+        step[0]   = cols * sizeof(_Tp);
+        step[1]   = sizeof(_Tp);
+        datastart = data = (uchar*)M.val;
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+        Mat(m, n, traits::Type<_Tp>::value, (uchar*)M.val).copyTo(*this);
+}
+
+template <typename _Tp>
+inline Mat::Mat(const Point_<_Tp>& pt, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows(2), cols(1), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (!copyData)
+    {
+        step[0] = step[1] = sizeof(_Tp);
+        datastart = data = (uchar*)&pt.x;
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+    {
+        create(2, 1, traits::Type<_Tp>::value);
+        ((_Tp*)data)[0] = pt.x;
+        ((_Tp*)data)[1] = pt.y;
+    }
+}
+
+template <typename _Tp>
+inline Mat::Mat(const Point3_<_Tp>& pt, bool copyData):
+    flags(saturate_cast<int>(MAGIC_VAL) + traits::Type<_Tp>::value + HL_MAT_CONT_FLAG), dims(2), rows(3), cols(1), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows), step(0)
+{
+    if (!copyData)
+    {
+        step[0] = step[1] = sizeof(_Tp);
+        datastart = data = (uchar*)&pt.x;
+        datalimit = dataend = datastart + rows * step[0];
+    }
+    else
+    {
+        create(3, 1, traits::Type<_Tp>::value);
+        ((_Tp*)data)[0] = pt.x;
+        ((_Tp*)data)[1] = pt.y;
+        ((_Tp*)data)[2] = pt.z;
+    }
+}
 
 inline Mat Mat::row(int y) const
 {

@@ -154,6 +154,31 @@ public:
     Mat(const Mat& m, const Range* ranges);
     Mat(const Mat& m, const std::vector<Range>& ranges);
 
+    template <typename _Tp>
+    explicit Mat(const std::vector<_Tp>& vec, bool copyData = false);
+
+    template <typename _Tp, typename = typename std::enable_if<std::is_arithmetic<_Tp>::value>::type>
+    explicit Mat(const std::initializer_list<_Tp> list);
+
+    template <typename _Tp>
+    explicit Mat(const std::initializer_list<int> sizes, const std::initializer_list<_Tp> list);
+
+    template <typename _Tp, size_t _Nm>
+    explicit Mat(const std::array<_Tp, _Nm>& arr, bool copyData = false);
+
+    template <typename _Tp, int n>
+    explicit Mat(const Vec<_Tp, n>& vec, bool copyData = true);
+
+    template <typename _Tp, int m, int n>
+    explicit Mat(const Matx<_Tp, m, n>& mtx, bool copyData = true);
+
+    template <typename _Tp>
+    explicit Mat(const Point_<_Tp>& pt, bool copyData = true);
+
+    template <typename _Tp>
+    explicit Mat(const Point3_<_Tp>& pt, bool copyData = true);
+
+
     ~Mat();
 
     Mat& operator=(const Mat& m);

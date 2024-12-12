@@ -62,6 +62,13 @@ void warpAffine(const Mat& src, Mat& dst, const Mat& M, Size dsize, int flags = 
 
 void remap(const Mat& src, Mat& dst, const Mat& map1, const Mat& map2, int interpolation, int borderMode = BORDER_CONSTANT, const Scalar& borderValue = Scalar());
 
+Matx23d getRotationMatrix2D_(Point2f center, double angle, double scale);
+
+inline Mat getRotationMatrix2D(Point2f center, double angle, double scale)
+{
+    return Mat(getRotationMatrix2D_(center, angle, scale), true);
+}
+
 double threshold(const Mat& src, Mat& dst, double thresh, double maxval, int type);
 
 void calcHist(const Mat* images, int nimages, const int* channels, const Mat& mask, Mat& hist, int dims, const int* histSize, const float** ranges, bool uniform = true, bool accumulate = false);

@@ -1113,3 +1113,13 @@ void hl::warpAffine(const Mat& _src, Mat& _dst, const Mat& _M0, Size dsize, int 
 
     hal::warpAffine(src.type(), src.data, src.step, src.cols, src.rows, dst.data, dst.step, dst.cols, dst.rows, M, interpolation, borderType, borderValue.val);
 }
+
+hl::Matx23d hl::getRotationMatrix2D_(Point2f center, double angle, double scale)
+{
+    angle        *= HL_PI / 180;
+    double alpha  = std::cos(angle) * scale;
+    double beta   = std::sin(angle) * scale;
+
+    Matx23d M(alpha, beta, (1 - alpha) * center.x - beta * center.y, -beta, alpha, beta * center.x + (1 - alpha) * center.y);
+    return M;
+}

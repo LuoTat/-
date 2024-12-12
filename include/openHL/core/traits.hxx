@@ -5,12 +5,14 @@
 namespace hl
 {
 
-template <typename _Tp> class DataType
+template <typename _Tp>
+class DataType
 {
 public:
 };
 
-template <> class DataType<bool>
+template <>
+class DataType<bool>
 {
 public:
     typedef bool       value_type;
@@ -28,7 +30,8 @@ public:
     };
 };
 
-template <> class DataType<uchar>
+template <>
+class DataType<uchar>
 {
 public:
     typedef uchar      value_type;
@@ -46,7 +49,8 @@ public:
     };
 };
 
-template <> class DataType<schar>
+template <>
+class DataType<schar>
 {
 public:
     typedef schar      value_type;
@@ -64,7 +68,8 @@ public:
     };
 };
 
-template <> class DataType<char>
+template <>
+class DataType<char>
 {
 public:
     typedef schar      value_type;
@@ -82,7 +87,8 @@ public:
     };
 };
 
-template <> class DataType<ushort>
+template <>
+class DataType<ushort>
 {
 public:
     typedef ushort     value_type;
@@ -100,7 +106,8 @@ public:
     };
 };
 
-template <> class DataType<short>
+template <>
+class DataType<short>
 {
 public:
     typedef short      value_type;
@@ -118,7 +125,8 @@ public:
     };
 };
 
-template <> class DataType<uint>
+template <>
+class DataType<uint>
 {
 public:
     typedef int        value_type;
@@ -136,7 +144,8 @@ public:
     };
 };
 
-template <> class DataType<int>
+template <>
+class DataType<int>
 {
 public:
     typedef int        value_type;
@@ -154,7 +163,8 @@ public:
     };
 };
 
-template <> class DataType<float>
+template <>
+class DataType<float>
 {
 public:
     typedef float      value_type;
@@ -172,7 +182,8 @@ public:
     };
 };
 
-template <> class DataType<double>
+template <>
+class DataType<double>
 {
 public:
     typedef double     value_type;
@@ -190,7 +201,8 @@ public:
     };
 };
 
-template <typename _Tp> class DataDepth
+template <typename _Tp>
+class DataDepth
 {
 public:
     enum
