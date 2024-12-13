@@ -4,6 +4,8 @@ set(SOURCES
     convert_scale.dispatch.cxx
     convert.dispatch.cxx
     copy.cxx
+    lapack.cxx
+    matrix_decomp.cxx
     matrix_iterator.cxx
     matrix_transform.cxx
     matrix.cxx

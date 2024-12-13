@@ -36,6 +36,8 @@ int borderInterpolate(int p, int len, int borderType);
 
 void copyMakeBorder(const Mat& src, Mat& dst, int top, int bottom, int left, int right, int borderType, const Scalar& value = Scalar());
 
+double norm(const Mat& src1, int normType = NORM_L2, const Mat& mask = Mat());
+
 void normalize(const Mat& src, Mat& dst, double alpha = 1, double beta = 0, int norm_type = NORM_L2, int dtype = -1, const Mat& mask = Mat());
 
 void minMaxIdx(const Mat& src, double* minVal, double* maxVal = 0, int* minIdx = 0, int* maxIdx = 0, const Mat& mask = Mat());

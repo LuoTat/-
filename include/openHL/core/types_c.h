@@ -40,7 +40,7 @@ enum
     HL_StsObjectNotFound         = -204, /**< request can't be completed */
     HL_StsUnmatchedFormats       = -205, /**< formats of input/output arrays differ */
     HL_StsBadFlag                = -206, /**< flag is wrong or not supported */
-    HL_StsBadPoint               = -207, /**< bad CvPoint */
+    HL_StsBadPoint               = -207, /**< bad HlPoint */
     HL_StsBadMask                = -208, /**< bad format of mask (neither 8uC1 nor 8sC1)*/
     HL_StsUnmatchedSizes         = -209, /**< sizes of input/output structures do not match */
     HL_StsUnsupportedFormat      = -210, /**< the data format/type is not supported by the function*/

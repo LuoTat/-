@@ -1,25 +1,5 @@
 #pragma once
 
-// #ifdef _MSC_VER
-//     #pragma warning(push)
-//     #pragma warning(disable : 4127 5054)
-// #endif
-
-// #if defined(CV_SKIP_DISABLE_CLANG_ENUM_WARNINGS)
-// // nothing
-// #elif defined(CV_FORCE_DISABLE_CLANG_ENUM_WARNINGS)
-//     #define CV_DISABLE_CLANG_ENUM_WARNINGS
-// #elif defined(__clang__) && defined(__has_warning)
-//     #if __has_warning("-Wdeprecated-enum-enum-conversion") && __has_warning("-Wdeprecated-anon-enum-enum-conversion")
-//         #define CV_DISABLE_CLANG_ENUM_WARNINGS
-//     #endif
-// #endif
-// #ifdef CV_DISABLE_CLANG_ENUM_WARNINGS
-//     #pragma clang diagnostic push
-//     #pragma clang diagnostic ignored "-Wdeprecated-enum-enum-conversion"
-//     #pragma clang diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
-// #endif
-
 namespace hl
 {
 
