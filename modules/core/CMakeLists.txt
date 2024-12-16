@@ -1,5 +1,7 @@
 set(SOURCES
     alloc.cxx
+    arithm.cxx
+    arithm.dispatch.cxx
     buffer_area.cxx
     convert_scale.dispatch.cxx
     convert.dispatch.cxx
@@ -14,7 +16,9 @@ set(SOURCES
     parallel.cxx
     softfloat.cxx
     split.dispatch.cxx
+    stat.dispatch.cxx
     system.cxx
+    tables.cxx
     umatrix.cxx
 )
 

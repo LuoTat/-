@@ -38,6 +38,8 @@ void copyMakeBorder(const Mat& src, Mat& dst, int top, int bottom, int left, int
 
 double norm(const Mat& src1, int normType = NORM_L2, const Mat& mask = Mat());
 
+double norm(const Mat& src1, const Mat& src2, int normType = NORM_L2, const Mat& mask = Mat());
+
 void normalize(const Mat& src, Mat& dst, double alpha = 1, double beta = 0, int norm_type = NORM_L2, int dtype = -1, const Mat& mask = Mat());
 
 void minMaxIdx(const Mat& src, double* minVal, double* maxVal = 0, int* minIdx = 0, int* maxIdx = 0, const Mat& mask = Mat());
@@ -45,5 +47,13 @@ void minMaxIdx(const Mat& src, double* minVal, double* maxVal = 0, int* minIdx =
 void split(const Mat& src, Mat* mvbegin);
 
 void flip(const Mat& src, Mat& dst, int flipCode);
+
+void bitwise_and(const Mat& src1, const Mat& src2, Mat& dst, const Mat& mask = Mat());
+
+void bitwise_or(const Mat& src1, const Mat& src2, Mat& dst, const Mat& mask = Mat());
+
+void bitwise_xor(const Mat& src1, const Mat& src2, Mat& dst, const Mat& mask = Mat());
+
+void bitwise_not(const Mat& src, Mat& dst, const Mat& mask = Mat());
 
 }    // namespace hl

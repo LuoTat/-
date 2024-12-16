@@ -26,6 +26,18 @@
 namespace hl
 {
 
+// -128.f ... 255.f
+extern const float g_8x32fTab[];
+#define HL_8TO32F(x) hl::g_8x32fTab[(x) + 128]
+
+extern const ushort g_8x16uSqrTab[];
+#define HL_SQR_8U(x) hl::g_8x16uSqrTab[(x) + 255]
+
+extern const uchar g_Saturate8u[];
+#define HL_FAST_CAST_8U(t) (assert(-256 <= (t) && (t) <= 512), hl::g_Saturate8u[(t) + 256])
+#define HL_MIN_8U(a, b)    ((a) - HL_FAST_CAST_8U((a) - (b)))
+#define HL_MAX_8U(a, b)    ((a) + HL_FAST_CAST_8U((b) - (a)))
+
 typedef void (*BinaryFunc)(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, Size sz, void*);
 
 typedef void (*BinaryFuncC)(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height, void*);

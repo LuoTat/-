@@ -889,6 +889,22 @@ void Mat::create(const std::vector<int>& _sizes, int _type)
     create((int)_sizes.size(), _sizes.data(), _type);
 }
 
+int Mat::sizend(int* arrsz, int i) const
+{
+    HL_Assert(i < 0);
+    int d = dims;
+    if (arrsz)
+        for (int j = 0; j < d; j++)
+            arrsz[j] = size.p[j];
+    return d;
+}
+
+void Mat::createSameSize(const Mat& arr, int mtype)
+{
+    int arrsz[HL_MAX_DIM], d = arr.sizend(arrsz);
+    create(d, arrsz, mtype);
+}
+
 void Mat::addref()
 {
     if (u)

@@ -212,6 +212,10 @@ public:
     void create(int ndims, const int* sizes, int type);
     void create(const std::vector<int>& sizes, int type);
 
+    int  sizend(int* sz, int i = -1) const;
+    bool sameSize(const Mat& arr) const;
+    void createSameSize(const Mat& arr, int mtype);
+
     void release();
     void locateROI(Size& wholeSize, Point& ofs) const;
     Mat& adjustROI(int dtop, int dbottom, int dleft, int dright);

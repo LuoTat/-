@@ -170,5 +170,28 @@ bool Cholesky64f(double* A, size_t astep, int m, double* b, size_t bstep, int n)
     return CholImpl(A, astep, m, b, bstep, n);
 }
 
+//=============================================================================
+// for compatibility with 3.0
+
+int LU(float* A, size_t astep, int m, float* b, size_t bstep, int n)
+{
+    return LUImpl(A, astep, m, b, bstep, n, FLT_EPSILON * 10);
+}
+
+int LU(double* A, size_t astep, int m, double* b, size_t bstep, int n)
+{
+    return LUImpl(A, astep, m, b, bstep, n, DBL_EPSILON * 100);
+}
+
+bool Cholesky(float* A, size_t astep, int m, float* b, size_t bstep, int n)
+{
+    return CholImpl(A, astep, m, b, bstep, n);
+}
+
+bool Cholesky(double* A, size_t astep, int m, double* b, size_t bstep, int n)
+{
+    return CholImpl(A, astep, m, b, bstep, n);
+}
+
 }    // namespace hal
 }    // namespace hl

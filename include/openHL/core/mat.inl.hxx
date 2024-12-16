@@ -173,6 +173,11 @@ inline Mat Mat::operator()(const std::vector<Range>& ranges) const
     return Mat(*this, ranges);
 }
 
+inline bool Mat::sameSize(const Mat& arr) const
+{
+    return size == arr.size;
+}
+
 inline bool Mat::isContinuous() const
 {
     return (flags & CONTINUOUS_FLAG) != 0;
