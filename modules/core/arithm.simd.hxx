@@ -1,53 +1,92 @@
 #include "openHL/core/hal/intrin.hxx"
 
+#undef ARITHM_DECLARATIONS_ONLY
+#ifdef CV_CPU_OPTIMIZATION_DECLARATIONS_ONLY
+    #define ARITHM_DECLARATIONS_ONLY
+#endif
+
+#undef ARITHM_DEFINITIONS_ONLY
+#if !defined(CV_CPU_OPTIMIZATION_DECLARATIONS_ONLY) && !defined(ARITHM_DISPATCHING_ONLY)
+    #define ARITHM_DEFINITIONS_ONLY
+#endif
+
+#ifdef ARITHM_DECLARATIONS_ONLY
+    #undef DEFINE_SIMD
+    #define DEFINE_SIMD(fun_name, c_type, ...) \
+        DECLARE_SIMD_FUN(fun_name, c_type)
+#endif    // ARITHM_DECLARATIONS_ONLY
+
+#ifdef ARITHM_DEFINITIONS_ONLY
+    #undef DEFINE_SIMD
+    #define DEFINE_SIMD(fun_name, c_type, ...) \
+        DECLARE_SIMD_FUN(fun_name, c_type)     \
+        DEFINE_SIMD_FUN(fun_name, c_type, __VA_ARGS__)
+#endif    // ARITHM_DEFINITIONS_ONLY
+
+#ifdef ARITHM_DISPATCHING_ONLY
+    #undef DEFINE_SIMD
+    #define DEFINE_SIMD(fun_name, c_type, ...) \
+        DISPATCH_SIMD_FUN(fun_name, c_type, __VA_ARGS__)
+#endif    // ARITHM_DISPATCHING_ONLY
+
+// workaround when neon miss support of double precision
+#undef DEFINE_NOSIMD
+#ifdef ARITHM_DEFINITIONS_ONLY
+    #define DEFINE_NOSIMD(fun_name, c_type, ...) \
+        DECLARE_SIMD_FUN(fun_name, c_type)       \
+        DEFINE_NOSIMD_FUN(fun_name, c_type, __VA_ARGS__)
+#else
+    #define DEFINE_NOSIMD DEFINE_SIMD
+#endif    // ARITHM_DEFINITIONS_ONLY
+
+#ifndef SIMD_GUARD
+
+    #define DEFINE_SIMD_U8(fun, ...) \
+        DEFINE_SIMD(fun##8u, uchar, __VA_ARGS__)
+
+    #define DEFINE_SIMD_S8(fun, ...) \
+        DEFINE_SIMD(fun##8s, schar, __VA_ARGS__)
+
+    #define DEFINE_SIMD_U16(fun, ...) \
+        DEFINE_SIMD(fun##16u, ushort, __VA_ARGS__)
+
+    #define DEFINE_SIMD_S16(fun, ...) \
+        DEFINE_SIMD(fun##16s, short, __VA_ARGS__)
+
+    #define DEFINE_SIMD_S32(fun, ...) \
+        DEFINE_SIMD(fun##32s, int, __VA_ARGS__)
+
+    #define DEFINE_SIMD_F32(fun, ...) \
+        DEFINE_SIMD(fun##32f, float, __VA_ARGS__)
+
+    #define DEFINE_SIMD_F64(fun, ...) \
+        DEFINE_NOSIMD(fun##64f, double, __VA_ARGS__)
+
+    #define DEFINE_SIMD_SAT(fun, ...)     \
+        DEFINE_SIMD_U8(fun, __VA_ARGS__)  \
+        DEFINE_SIMD_S8(fun, __VA_ARGS__)  \
+        DEFINE_SIMD_U16(fun, __VA_ARGS__) \
+        DEFINE_SIMD_S16(fun, __VA_ARGS__)
+
+    #define DEFINE_SIMD_NSAT(fun, ...)    \
+        DEFINE_SIMD_S32(fun, __VA_ARGS__) \
+        DEFINE_SIMD_F32(fun, __VA_ARGS__) \
+        DEFINE_SIMD_F64(fun, __VA_ARGS__)
+
+    #define DEFINE_SIMD_ALL(fun, ...)     \
+        DEFINE_SIMD_SAT(fun, __VA_ARGS__) \
+        DEFINE_SIMD_NSAT(fun, __VA_ARGS__)
+
+#endif    // SIMD_GUARD
+
 namespace hl
 {
 namespace hal
 {
-
-#define DEFINE_NOSIMD(fun_name, c_type, ...) \
-    DECLARE_SIMD_FUN(fun_name, c_type)       \
-    DEFINE_NOSIMD_FUN(fun_name, c_type, __VA_ARGS__)
-
-#define DEFINE_SIMD_U8(fun, ...) \
-    DEFINE_NOSIMD(fun##8u, uchar, __VA_ARGS__)
-
-#define DEFINE_SIMD_S8(fun, ...) \
-    DEFINE_NOSIMD(fun##8s, schar, __VA_ARGS__)
-
-#define DEFINE_SIMD_U16(fun, ...) \
-    DEFINE_NOSIMD(fun##16u, ushort, __VA_ARGS__)
-
-#define DEFINE_SIMD_S16(fun, ...) \
-    DEFINE_NOSIMD(fun##16s, short, __VA_ARGS__)
-
-#define DEFINE_SIMD_U32(fun, ...) \
-    DEFINE_NOSIMD(fun##32u, int, __VA_ARGS__)
-
-#define DEFINE_SIMD_S32(fun, ...) \
-    DEFINE_NOSIMD(fun##32s, int, __VA_ARGS__)
-
-#define DEFINE_SIMD_F32(fun, ...) \
-    DEFINE_NOSIMD(fun##32f, float, __VA_ARGS__)
-
-#define DEFINE_SIMD_F64(fun, ...) \
-    DEFINE_NOSIMD(fun##64f, double, __VA_ARGS__)
-
-#define DEFINE_SIMD_SAT(fun, ...)     \
-    DEFINE_SIMD_U8(fun, __VA_ARGS__)  \
-    DEFINE_SIMD_S8(fun, __VA_ARGS__)  \
-    DEFINE_SIMD_U16(fun, __VA_ARGS__) \
-    DEFINE_SIMD_S16(fun, __VA_ARGS__)
-
-#define DEFINE_SIMD_NSAT(fun, ...)    \
-    DEFINE_SIMD_U32(fun, __VA_ARGS__) \
-    DEFINE_SIMD_S32(fun, __VA_ARGS__) \
-    DEFINE_SIMD_F32(fun, __VA_ARGS__) \
-    DEFINE_SIMD_F64(fun, __VA_ARGS__)
-
-#define DEFINE_SIMD_ALL(fun, ...)     \
-    DEFINE_SIMD_SAT(fun, __VA_ARGS__) \
-    DEFINE_SIMD_NSAT(fun, __VA_ARGS__)
+#ifndef ARITHM_DISPATCHING_ONLY
+namespace cpu_baseline
+{
+#endif
 
 //=======================================
 // Utility
@@ -345,11 +384,29 @@ static void bin_loop_nosimd(const T1* src1, size_t step1, const T1* src2, size_t
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-#define BIN_ARGS(_T1) const _T1 *src1, size_t step1, const _T1 *src2, size_t step2, _T1 *dst, size_t step, int width, int height
-#define BIN_ARGS_PASS src1, step1, src2, step2, dst, step, width, height
+#ifndef SIMD_GUARD
+    #define BIN_ARGS(_T1) const _T1 *src1, size_t step1, const _T1 *src2, size_t step2, \
+                          _T1 *dst, size_t step, int width, int height
+
+    #define BIN_ARGS_PASS src1, step1, src2, step2, dst, step, width, height
+#endif    // SIMD_GUARD
 
 #undef DECLARE_SIMD_FUN
 #define DECLARE_SIMD_FUN(fun, _T1) void fun(BIN_ARGS(_T1));
+
+#undef DISPATCH_SIMD_FUN
+#define DISPATCH_SIMD_FUN(fun, _T1, _OP)  \
+    void fun(BIN_ARGS(_T1), void*)        \
+    {                                     \
+        cpu_baseline::fun(BIN_ARGS_PASS); \
+    }
+
+#undef DEFINE_SIMD_FUN
+#define DEFINE_SIMD_FUN(fun, _T1, _OP)            \
+    void fun(BIN_ARGS(_T1))                       \
+    {                                             \
+        bin_loop_nosimd<_OP, _T1>(BIN_ARGS_PASS); \
+    }
 
 #undef DEFINE_NOSIMD_FUN
 #define DEFINE_NOSIMD_FUN(fun, _T1, _OP)          \
@@ -369,7 +426,35 @@ DEFINE_SIMD_ALL(absdiff, op_absdiff)
 DEFINE_SIMD_U8(or, op_or)
 DEFINE_SIMD_U8(xor, op_xor)
 DEFINE_SIMD_U8(and, op_and)
-DEFINE_SIMD_U8(not, op_not)
+
+// One source!, an exception for operation "not"
+// we could use macros here but it's better to implement it
+// with that way to give more clarification
+// about how macroS "DEFINE_SIMD_*" are works
+
+#if defined(ARITHM_DECLARATIONS_ONLY) || defined(ARITHM_DEFINITIONS_ONLY)
+void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height);
+#endif
+#ifdef ARITHM_DEFINITIONS_ONLY
+void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height)
+{
+    bin_loop_nosimd<op_not, uchar>(src1, step1, src2, step2, dst, step, width, height);
+}
+#endif
+#ifdef ARITHM_DISPATCHING_ONLY
+void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height, void*)
+{
+    cpu_baseline::not8u(src1, step1, src2, step2, dst, step, width, height);
+}
+#endif
+
+#ifndef ARITHM_DISPATCHING_ONLY
+}    // namespace cpu_baseline
+#endif
+
+#ifndef SIMD_GUARD
+    #define SIMD_GUARD
+#endif
 
 }    // namespace hal
 }    // namespace hl
