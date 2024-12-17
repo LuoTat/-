@@ -51,6 +51,11 @@ typedef uint64_t       uint64;
 #define HL_16SC3               HL_MAKETYPE(HL_16S, 3)
 #define HL_16SC4               HL_MAKETYPE(HL_16S, 4)
 
+#define HL_32UC1               HL_MAKETYPE(HL_32U, 1)
+#define HL_32UC2               HL_MAKETYPE(HL_32U, 2)
+#define HL_32UC3               HL_MAKETYPE(HL_32U, 3)
+#define HL_32UC4               HL_MAKETYPE(HL_32U, 4)
+
 #define HL_32SC1               HL_MAKETYPE(HL_32S, 1)
 #define HL_32SC2               HL_MAKETYPE(HL_32S, 2)
 #define HL_32SC3               HL_MAKETYPE(HL_32S, 3)
@@ -65,8 +70,3 @@ typedef uint64_t       uint64;
 #define HL_64FC2               HL_MAKETYPE(HL_64F, 2)
 #define HL_64FC3               HL_MAKETYPE(HL_64F, 3)
 #define HL_64FC4               HL_MAKETYPE(HL_64F, 4)
-
-#define HL_16FC1               HL_MAKETYPE(HL_16F, 1)
-#define HL_16FC2               HL_MAKETYPE(HL_16F, 2)
-#define HL_16FC3               HL_MAKETYPE(HL_16F, 3)
-#define HL_16FC4               HL_MAKETYPE(HL_16F, 4)

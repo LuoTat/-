@@ -5,6 +5,7 @@ set(SOURCES
     edge_detection.cxx
     filter.dispatch.cxx
     histogram.cxx
+    hough.cxx
     imgwarp.cxx
     median_blur.dispatch.cxx
     region.cxx

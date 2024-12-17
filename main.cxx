@@ -176,6 +176,12 @@ int main()
         }
         else if (choice == 8)
         {
+            Mat line = imread("../Test/line.bmp", IMREAD_GRAYSCALE);
+            Mat line_hough;
+
+            // Hough变换
+            HoughLines(line, line_hough, 100);
+            imwrite("../Test/line_hough.bmp", line_hough);
         }
         else if (choice == 9)
         {
