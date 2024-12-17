@@ -221,17 +221,9 @@ static NormFunc getNormFunc(int normType, int depth)
 
 static NormDiffFunc getNormDiffFunc(int normType, int depth)
 {
-    static NormDiffFunc normDiffTab[3][8]
-        = {{(NormDiffFunc)normDiffInf_8u,
-            (NormDiffFunc)normDiffInf_8s,
-            (NormDiffFunc)normDiffInf_16u,
-            (NormDiffFunc)normDiffInf_16s,
-            (NormDiffFunc)0,
-            (NormDiffFunc)normDiffInf_32s,
-            (NormDiffFunc)normDiffInf_32f,
-            (NormDiffFunc)normDiffInf_64f},
-           {(NormDiffFunc)normDiffL1_8u, (NormDiffFunc)normDiffL1_8s, (NormDiffFunc)normDiffL1_16u, (NormDiffFunc)normDiffL1_16s, (NormDiffFunc)0, (NormDiffFunc)normDiffL1_32s, (NormDiffFunc)normDiffL1_32f, (NormDiffFunc)normDiffL1_64f},
-           {(NormDiffFunc)normDiffL2_8u, (NormDiffFunc)normDiffL2_8s, (NormDiffFunc)normDiffL2_16u, (NormDiffFunc)normDiffL2_16s, (NormDiffFunc)0, (NormDiffFunc)normDiffL2_32s, (NormDiffFunc)normDiffL2_32f, (NormDiffFunc)normDiffL2_64f}};
+    static NormDiffFunc normDiffTab[3][8] = {{(NormDiffFunc)normDiffInf_8u, (NormDiffFunc)normDiffInf_8s, (NormDiffFunc)normDiffInf_16u, (NormDiffFunc)normDiffInf_16s, (NormDiffFunc)0, (NormDiffFunc)normDiffInf_32s, (NormDiffFunc)normDiffInf_32f, (NormDiffFunc)normDiffInf_64f},
+                                             {(NormDiffFunc)normDiffL1_8u, (NormDiffFunc)normDiffL1_8s, (NormDiffFunc)normDiffL1_16u, (NormDiffFunc)normDiffL1_16s, (NormDiffFunc)0, (NormDiffFunc)normDiffL1_32s, (NormDiffFunc)normDiffL1_32f, (NormDiffFunc)normDiffL1_64f},
+                                             {(NormDiffFunc)normDiffL2_8u, (NormDiffFunc)normDiffL2_8s, (NormDiffFunc)normDiffL2_16u, (NormDiffFunc)normDiffL2_16s, (NormDiffFunc)0, (NormDiffFunc)normDiffL2_32s, (NormDiffFunc)normDiffL2_32f, (NormDiffFunc)normDiffL2_64f}};
 
     return normDiffTab[normType][depth];
 }
@@ -534,7 +526,6 @@ void normalize(const Mat& _src, Mat& _dst, double a, double b, int norm_type, in
     }
     else if (norm_type == HL_L2 || norm_type == HL_L1 || norm_type == HL_C)
     {
-        // TODO: implement norm support
         scale = norm(_src, norm_type, _mask);
         scale = scale > DBL_EPSILON ? a / scale : 0.;
         shift = 0;

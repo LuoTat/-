@@ -1,12 +1,12 @@
 #include "openHL/core/hal/intrin.hxx"
 
 #undef ARITHM_DECLARATIONS_ONLY
-#ifdef CV_CPU_OPTIMIZATION_DECLARATIONS_ONLY
+#ifdef HL_CPU_OPTIMIZATION_DECLARATIONS_ONLY
     #define ARITHM_DECLARATIONS_ONLY
 #endif
 
 #undef ARITHM_DEFINITIONS_ONLY
-#if !defined(CV_CPU_OPTIMIZATION_DECLARATIONS_ONLY) && !defined(ARITHM_DISPATCHING_ONLY)
+#if !defined(HL_CPU_OPTIMIZATION_DECLARATIONS_ONLY) && !defined(ARITHM_DISPATCHING_ONLY)
     #define ARITHM_DEFINITIONS_ONLY
 #endif
 
@@ -29,16 +29,6 @@
         DISPATCH_SIMD_FUN(fun_name, c_type, __VA_ARGS__)
 #endif    // ARITHM_DISPATCHING_ONLY
 
-// workaround when neon miss support of double precision
-#undef DEFINE_NOSIMD
-#ifdef ARITHM_DEFINITIONS_ONLY
-    #define DEFINE_NOSIMD(fun_name, c_type, ...) \
-        DECLARE_SIMD_FUN(fun_name, c_type)       \
-        DEFINE_NOSIMD_FUN(fun_name, c_type, __VA_ARGS__)
-#else
-    #define DEFINE_NOSIMD DEFINE_SIMD
-#endif    // ARITHM_DEFINITIONS_ONLY
-
 #ifndef SIMD_GUARD
 
     #define DEFINE_SIMD_U8(fun, ...) \
@@ -53,6 +43,9 @@
     #define DEFINE_SIMD_S16(fun, ...) \
         DEFINE_SIMD(fun##16s, short, __VA_ARGS__)
 
+    #define DEFINE_SIMD_U32(fun, ...) \
+        DEFINE_SIMD(fun##32u, uint, __VA_ARGS__)
+
     #define DEFINE_SIMD_S32(fun, ...) \
         DEFINE_SIMD(fun##32s, int, __VA_ARGS__)
 
@@ -60,7 +53,7 @@
         DEFINE_SIMD(fun##32f, float, __VA_ARGS__)
 
     #define DEFINE_SIMD_F64(fun, ...) \
-        DEFINE_NOSIMD(fun##64f, double, __VA_ARGS__)
+        DEFINE_SIMD(fun##64f, double, __VA_ARGS__)
 
     #define DEFINE_SIMD_SAT(fun, ...)     \
         DEFINE_SIMD_U8(fun, __VA_ARGS__)  \
@@ -69,6 +62,7 @@
         DEFINE_SIMD_S16(fun, __VA_ARGS__)
 
     #define DEFINE_SIMD_NSAT(fun, ...)    \
+        DEFINE_SIMD_U32(fun, __VA_ARGS__) \
         DEFINE_SIMD_S32(fun, __VA_ARGS__) \
         DEFINE_SIMD_F32(fun, __VA_ARGS__) \
         DEFINE_SIMD_F64(fun, __VA_ARGS__)
@@ -408,13 +402,6 @@ static void bin_loop_nosimd(const T1* src1, size_t step1, const T1* src2, size_t
         bin_loop_nosimd<_OP, _T1>(BIN_ARGS_PASS); \
     }
 
-#undef DEFINE_NOSIMD_FUN
-#define DEFINE_NOSIMD_FUN(fun, _T1, _OP)          \
-    void fun(BIN_ARGS(_T1))                       \
-    {                                             \
-        bin_loop_nosimd<_OP, _T1>(BIN_ARGS_PASS); \
-    }
-
 DEFINE_SIMD_ALL(add, op_add)
 DEFINE_SIMD_ALL(sub, op_sub)
 
@@ -426,27 +413,7 @@ DEFINE_SIMD_ALL(absdiff, op_absdiff)
 DEFINE_SIMD_U8(or, op_or)
 DEFINE_SIMD_U8(xor, op_xor)
 DEFINE_SIMD_U8(and, op_and)
-
-// One source!, an exception for operation "not"
-// we could use macros here but it's better to implement it
-// with that way to give more clarification
-// about how macroS "DEFINE_SIMD_*" are works
-
-#if defined(ARITHM_DECLARATIONS_ONLY) || defined(ARITHM_DEFINITIONS_ONLY)
-void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height);
-#endif
-#ifdef ARITHM_DEFINITIONS_ONLY
-void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height)
-{
-    bin_loop_nosimd<op_not, uchar>(src1, step1, src2, step2, dst, step, width, height);
-}
-#endif
-#ifdef ARITHM_DISPATCHING_ONLY
-void not8u(const uchar* src1, size_t step1, const uchar* src2, size_t step2, uchar* dst, size_t step, int width, int height, void*)
-{
-    cpu_baseline::not8u(src1, step1, src2, step2, dst, step, width, height);
-}
-#endif
+DEFINE_SIMD_U8(not, op_not)
 
 #ifndef ARITHM_DISPATCHING_ONLY
 }    // namespace cpu_baseline
