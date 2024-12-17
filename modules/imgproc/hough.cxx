@@ -1,5 +1,4 @@
 #include "precomp.hxx"
-#include <iostream>
 
 namespace hl
 {
@@ -18,18 +17,18 @@ static void drawLine(Mat& img, int rho, int theta)
     int height      = img.rows;
 
     // 存储四个交点
-    Point pt1, pt2, pt3, pt4;
+    Point2d pt1, pt2, pt3, pt4;
 
     // 1. 计算直线与上下边界的交点
-    pt1 = Point(rho / cosTheta, 0);                                         // 上边界 y = 0
-    pt2 = Point((rho - (height - 1) * sinTheta) / cosTheta, height - 1);    // 下边界 y = height - 1
+    pt1 = Point2d(rho / cosTheta, 0);                                         // 上边界 y = 0
+    pt2 = Point2d((rho - (height - 1) * sinTheta) / cosTheta, height - 1);    // 下边界 y = height - 1
 
     // 2. 计算直线与左右边界的交点
-    pt3 = Point(0, rho / sinTheta);                                       // 左边界 x = 0
-    pt4 = Point(width - 1, (rho - (width - 1) * cosTheta) / sinTheta);    // 右边界 x = width - 1
+    pt3 = Point2d(0, rho / sinTheta);                                       // 左边界 x = 0
+    pt4 = Point2d(width - 1, (rho - (width - 1) * cosTheta) / sinTheta);    // 右边界 x = width - 1
 
     // 3. 筛选有效点
-    std::vector<Point> validPoints;
+    std::vector<Point2d> validPoints;
     if (pt1.x >= 0 && pt1.x < width) validPoints.push_back(pt1);     // 上边界
     if (pt2.x >= 0 && pt2.x < width) validPoints.push_back(pt2);     // 下边界
     if (pt3.y >= 0 && pt3.y < height) validPoints.push_back(pt3);    // 左边界
@@ -118,7 +117,6 @@ void HoughLines(const Mat& src, Mat& dst, uint threshold)
         {
             if (accumulator.at<uint>(rho, theta) >= threshold)
             {
-                std::cout << "rho: " << rho << ", theta: " << theta + thetaMin << ", count: " << accumulator.at<uint>(rho, theta) << std::endl;
                 drawLine(dst, rho, theta + thetaMin);    // 画线
             }
         }
