@@ -492,6 +492,58 @@ private:
 
 }    // namespace hl
 
+double hl::threshold_Iter(const Mat& src, Mat& dst, const Mat& hist, double epsilon)
+{
+    // 迭代法求阈值
+    // 初始化阈值
+    // 通过直方图获得图像灰度的中值
+    std::vector<double> hist_data;
+    for (int i = 0; i < hist.rows; ++i)
+    {
+        if (hist.at<float>(i) > 0)
+            hist_data.push_back(static_cast<double>(i));
+    }
+    double T = hist_data[hist_data.size() / 2];
+    double T_new;
+
+    // 迭代
+    while (true)
+    {
+        double sum1 = 0, sum2 = 0;
+        int    count1 = 0, count2 = 0;
+        for (int y = 0; y < src.rows; y++)
+        {
+            for (int x = 0; x < src.cols; x++)
+            {
+                // 分别计算两个区域的灰度和像素个数
+                if (src.at<uchar>(y, x) > T)
+                {
+                    sum1 += src.at<uchar>(y, x);
+                    count1++;
+                }
+                else
+                {
+                    sum2 += src.at<uchar>(y, x);
+                    count2++;
+                }
+            }
+        }
+        T_new = (sum1 / count1 + sum2 / count2) / 2;
+
+        if (std::abs(T_new - T) < epsilon)
+        {
+            break;
+        }
+        else
+        {
+            T = T_new;
+        }
+    }
+
+    // 根据阈值分割图像
+    return threshold(src, dst, T_new, 255, THRESH_BINARY);
+}
+
 double hl::threshold(const Mat& _src, Mat& _dst, double thresh, double maxval, int type)
 {
     Mat src = _src;

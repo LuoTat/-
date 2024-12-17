@@ -7,6 +7,7 @@ set(SOURCES
     histogram.cxx
     imgwarp.cxx
     median_blur.dispatch.cxx
+    region.cxx
     resize.cxx
     tables.cxx
     thresh.cxx

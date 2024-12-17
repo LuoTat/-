@@ -60,6 +60,7 @@ int main()
 
             // 直方图均衡化
             equalizeHist(dim, dim_equalized);
+            imwrite("../Test/dim_equalized.bmp", dim_equalized);
 
             int          channels[] = {0};
             int          histSize[] = {256};
@@ -73,7 +74,6 @@ int main()
 
             imwrite("../Test/dim_hist_img.bmp", dim_hist_img);
             imwrite("../Test/dim_equalized_hist_img.bmp", dim_equalized_hist_img);
-            imwrite("../Test/dim_equalized.bmp", dim_equalized);
         }
         else if (choice == 3)
         {
@@ -82,11 +82,10 @@ int main()
 
             // 中值滤波
             medianBlur(noise, noise_medianblur, 5);
+            imwrite("../Test/noise_medianblur.bmp", noise_medianblur);
 
             // 均值滤波
             blur(noise, noise_blur, Size(5, 5));
-
-            imwrite("../Test/noise_medianblur.bmp", noise_medianblur);
             imwrite("../Test/noise_blur.bmp", noise_blur);
         }
         else if (choice == 4)
@@ -129,25 +128,31 @@ int main()
 
             // 给定阈值分割
             drawHist_T(lena_hist, lena_threshold_T_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_T, 80, 255, THRESH_BINARY)));
+            imwrite("../Test/lena_threshold_T.bmp", lena_threshold_T);
+            imwrite("../Test/lena_threshold_T_hist.bmp", lena_threshold_T_hist_img);
 
             // 迭代阈值分割
-            // drawHist_T(lena_hist, lena_threshold_Iter_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Iter, 114, 255, THRESH_BINARY)));
+            drawHist_T(lena_hist, lena_threshold_Iter_hist_img, 4, 1024, static_cast<uchar>(threshold_Iter(lena, lena_threshold_Iter, lena_hist, 0.01)));
+            imwrite("../Test/lena_threshold_Iter.bmp", lena_threshold_Iter);
+            imwrite("../Test/lena_threshold_Iter_hist.bmp", lena_threshold_Iter_hist_img);
 
             // Otsu阈值分割
             drawHist_T(lena_hist, lena_threshold_Otsu_hist_img, 4, 1024, static_cast<uchar>(threshold(lena, lena_threshold_Otsu, 0, 255, THRESH_OTSU)));
-
-            imwrite("../Test/lena_threshold_T.bmp", lena_threshold_T);
-            // imwrite("../Test/lena_threshold_Iter.bmp", lena_threshold_Iter);
             imwrite("../Test/lena_threshold_Otsu.bmp", lena_threshold_Otsu);
-
-            imwrite("../Test/lena_threshold_T_hist.bmp", lena_threshold_T_hist_img);
-            // imwrite("../Test/lena_threshold_Iter_hist.bmp", lena_threshold_Iter_hist_img);
             imwrite("../Test/lena_threshold_Otsu_hist.bmp", lena_threshold_Otsu_hist_img);
-
-            std::cout << "已进行阈值分割.\n";
         }
         else if (choice == 6)
         {
+            Mat mountain = imread("../Test/mountain.bmp", IMREAD_GRAYSCALE);
+            Mat mountain_regionSplitting, mountain_regionGrowing;
+
+            // 区域生长
+            regionGrowing(mountain, mountain_regionGrowing, 0, 0, 128);
+            imwrite("../Test/mountain_regionGrowing.bmp", mountain_regionGrowing);
+
+            // 区域分裂
+            regionSplitting(mountain, mountain_regionSplitting, 128);
+            imwrite("../Test/mountain_regionSplitting.bmp", mountain_regionSplitting);
         }
         else if (choice == 7)
         {

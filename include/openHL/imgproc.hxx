@@ -56,6 +56,12 @@ void sobel(const Mat& src, Mat& dst);
 
 void LOG(const Mat& src, Mat& dst);
 
+double threshold_Iter(const Mat& src, Mat& dst, const Mat& hist, double epsilon);
+
+void regionSplitting(const Mat& src, Mat& dst, int threshold);
+
+void regionGrowing(const Mat& src, Mat& dst, int seedX, int seedY, int threshold);
+
 void medianBlur(const Mat& src, Mat& dst, int ksize);
 
 void boxFilter(const Mat& src, Mat& dst, int ddepth, Size ksize, Point anchor = Point(-1, -1), bool normalize = true, int borderType = BORDER_DEFAULT);
