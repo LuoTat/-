@@ -50,6 +50,12 @@ enum ColorConversionCodes
     COLOR_BGR5552GRAY = 31,
 };
 
+void prewitt(const Mat& src, Mat& dst);
+
+void sobel(const Mat& src, Mat& dst);
+
+void LOG(const Mat& src, Mat& dst);
+
 void medianBlur(const Mat& src, Mat& dst, int ksize);
 
 void boxFilter(const Mat& src, Mat& dst, int ddepth, Size ksize, Point anchor = Point(-1, -1), bool normalize = true, int borderType = BORDER_DEFAULT);

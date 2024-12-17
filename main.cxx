@@ -36,20 +36,18 @@ int main()
         if (choice == 1)
         {
             Mat rgb = imread("../Test/rgb.bmp", IMREAD_UNCHANGED);
+            Mat rgb_gray, rgb_gray_reverse, splited_array[3];
 
             // 转换为灰度图像
-            Mat rgb_gray;
             cvtColor(rgb, rgb_gray, COLOR_BGR2GRAY);
             imwrite("../Test/rgb_gray.bmp", rgb_gray);
 
             // 灰度反转
             Mat temp = Mat(rgb_gray.size(), rgb_gray.type(), Scalar(255));
-            Mat rgb_gray_reverse;
             subtract(temp, rgb_gray, rgb_gray_reverse);
             imwrite("../Test/rgb_gray_reverse.bmp", rgb_gray_reverse);
 
             // 分离通道
-            Mat splited_array[3];
             split(rgb, splited_array);
             imwrite("../Test/rgb_B.bmp", splited_array[0]);
             imwrite("../Test/rgb_G.bmp", splited_array[1]);
@@ -72,6 +70,7 @@ int main()
             calcHist(&dim_equalized, 1, channels, Mat(), dim_equalized_hist, 1, histSize, ranges);
             drawHist(dim_hist, dim_hist_img, 4, 1024);
             drawHist(dim_equalized_hist, dim_equalized_hist_img, 4, 1024);
+
             imwrite("../Test/dim_hist_img.bmp", dim_hist_img);
             imwrite("../Test/dim_equalized_hist_img.bmp", dim_equalized_hist_img);
             imwrite("../Test/dim_equalized.bmp", dim_equalized);
@@ -152,6 +151,23 @@ int main()
         }
         else if (choice == 7)
         {
+            Mat lena = imread("../Test/lena.bmp", IMREAD_GRAYSCALE);
+            Mat lena_prewitt, lena_sobel, lena_LOG;
+
+            // Prewitt算子
+            prewitt(lena, lena_prewitt);
+            threshold(lena_prewitt, lena_prewitt, 0, 255, THRESH_OTSU);
+            imwrite("../Test/lena_prewitt.bmp", lena_prewitt);
+
+            // Sobel算子
+            sobel(lena, lena_sobel);
+            threshold(lena_sobel, lena_sobel, 0, 255, THRESH_OTSU);
+            imwrite("../Test/lena_sobel.bmp", lena_sobel);
+
+            // LOG算子
+            LOG(lena, lena_LOG);
+            threshold(lena_LOG, lena_LOG, 0, 255, THRESH_OTSU);
+            imwrite("../Test/lena_LOG.bmp", lena_LOG);
         }
         else if (choice == 8)
         {
