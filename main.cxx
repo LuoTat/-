@@ -4,7 +4,7 @@
 using namespace hl;
 
 // 功能菜单
-void showMenu()
+static void showMenu()
 {
     std::cout << "\n===========================\n";
     std::cout << "        图像处理工具        \n";
@@ -43,6 +43,10 @@ int main()
             imwrite("../Test/rgb_gray.bmp", rgb_gray);
 
             // 灰度反转
+            Mat temp = Mat(rgb_gray.size(), rgb_gray.type(), Scalar(255));
+            Mat rgb_gray_reverse;
+            subtract(temp, rgb_gray, rgb_gray_reverse);
+            imwrite("../Test/rgb_gray_reverse.bmp", rgb_gray_reverse);
 
             // 分离通道
             Mat splited_array[3];
