@@ -101,15 +101,8 @@ void HoughLines(const Mat& src, Mat& dst, uint threshold)
         }
     }
 
-    // 将src复制到dst
-    dst.create(src.rows, src.cols, HL_8UC3);
-    for (int y = 0; y < src.rows; ++y)
-    {
-        for (int x = 0; x < src.cols; ++x)
-        {
-            dst.at<Vec3b>(y, x) = Vec3b(src.at<uchar>(y, x), src.at<uchar>(y, x), src.at<uchar>(y, x));
-        }
-    }
+    // 把src转换为24位图像
+    cvtColor(src, dst, COLOR_GRAY2BGR);
 
     for (int rho = 0; rho < accumulator.rows; ++rho)
     {

@@ -8,6 +8,7 @@ set(SOURCES
     hough.cxx
     imgwarp.cxx
     median_blur.dispatch.cxx
+    region_tag.cxx
     region.cxx
     resize.cxx
     tables.cxx

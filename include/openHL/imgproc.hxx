@@ -44,11 +44,15 @@ enum ColorConversionCodes
 {
     COLOR_BGR2GRAY    = 6,
     COLOR_RGB2GRAY    = 7,
+    COLOR_GRAY2BGR    = 8,
+    COLOR_GRAY2BGRA   = 9,
     COLOR_BGRA2GRAY   = 10,
     COLOR_RGBA2GRAY   = 11,
     COLOR_BGR5652GRAY = 21,
     COLOR_BGR5552GRAY = 31,
 };
+
+void connectedComponents(const Mat& src, Mat& dst);
 
 void HoughLines(const Mat& src, Mat& dst, uint threshold);
 

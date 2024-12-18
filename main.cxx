@@ -182,9 +182,16 @@ int main()
             // Hough变换
             HoughLines(line, line_hough, 100);
             imwrite("../Test/line_hough.bmp", line_hough);
+            imwrite("../Test/line_hough_img.bmp", line);
         }
         else if (choice == 9)
         {
+            Mat region = imread("../Test/region.bmp", IMREAD_GRAYSCALE);
+            Mat region_tag;
+
+            // 区域标记
+            connectedComponents(region, region_tag);
+            imwrite("../Test/region_tag.bmp", region_tag);
         }
         else if (choice == 10)
         {
