@@ -6,8 +6,41 @@ namespace hal
 {
 namespace cpu_baseline
 {
+
+
+void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int scn, bool swapBlue);
+
+void cvtGraytoBGR(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int dcn);
+
 namespace
 {
+
+///////////////////////////////// Color to/from Grayscale ////////////////////////////////
+
+template <typename _Tp>
+struct Gray2RGB
+{
+    typedef _Tp channel_type;
+
+    Gray2RGB(int _dstcn):
+        dstcn(_dstcn) {}
+
+    void operator()(const _Tp* src, _Tp* dst, int n) const
+    {
+        int dcn   = dstcn;
+        int i     = 0;
+        _Tp alpha = ColorChannel<_Tp>::max();
+
+        for (; i < n; i++, src++, dst += dcn)
+        {
+            dst[0] = dst[1] = dst[2] = src[0];
+            if (dcn == 4)
+                dst[3] = alpha;
+        }
+    }
+
+    int dstcn;
+};
 
 template <typename _Tp> struct RGB2Gray
 {
@@ -147,8 +180,6 @@ struct RGB2Gray<float>
 
 }    // namespace
 
-void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int scn, bool swapBlue);
-
 void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int scn, bool swapBlue)
 {
     int blueIdx = swapBlue ? 2 : 0;
@@ -159,6 +190,19 @@ void cvtBGRtoGray(const uchar* src_data, size_t src_step, uchar* dst_data, size_
     else
         CvtColorLoop(src_data, src_step, dst_data, dst_step, width, height, RGB2Gray<float>(scn, blueIdx, 0));
 }
+
+// 8u, 16u, 32f
+void cvtGraytoBGR(const uchar* src_data, size_t src_step, uchar* dst_data, size_t dst_step, int width, int height, int depth, int dcn)
+{
+    if (depth == HL_8U)
+        CvtColorLoop(src_data, src_step, dst_data, dst_step, width, height, Gray2RGB<uchar>(dcn));
+    else if (depth == HL_16U)
+        CvtColorLoop(src_data, src_step, dst_data, dst_step, width, height, Gray2RGB<ushort>(dcn));
+    else
+        CvtColorLoop(src_data, src_step, dst_data, dst_step, width, height, Gray2RGB<float>(dcn));
+}
+
+
 
 }    // namespace cpu_baseline
 }    // namespace hal

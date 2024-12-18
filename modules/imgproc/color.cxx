@@ -19,6 +19,10 @@ void cvtColor(const Mat& _src, Mat& _dst, int code, int dcn)
         case COLOR_RGBA2GRAY :
             cvtColorBGR2Gray(_src, _dst, swapBlue(code));
             break;
+        case COLOR_GRAY2BGR :
+        case COLOR_GRAY2BGRA :
+            cvtColorGray2BGR(_src, _dst, dcn);
+            break;
         default :
             break;
     }
