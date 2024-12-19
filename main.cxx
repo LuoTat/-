@@ -195,6 +195,16 @@ int main()
         }
         else if (choice == 10)
         {
+            Mat contour = imread("../Test/contour.bmp", IMREAD_GRAYSCALE);
+            Mat contour_extracted, contour_traced;
+
+            // 轮廓提取
+            extractContours(contour, contour_extracted);
+            imwrite("../Test/contour_extracted.bmp", contour_extracted);
+
+            // 轮廓跟踪
+            trackingContours(contour, contour_traced);
+            imwrite("../Test/contour_traced.bmp", contour_traced);
         }
         else if (choice == 0)
             std::cout << "已退出。\n";

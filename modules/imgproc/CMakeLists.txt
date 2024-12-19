@@ -2,6 +2,7 @@ set(SOURCES
     box_filter.dispatch.cxx
     color_rgb.dispatch.cxx
     color.cxx
+    contour.cxx
     edge_detection.cxx
     filter.dispatch.cxx
     histogram.cxx

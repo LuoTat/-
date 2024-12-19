@@ -52,6 +52,10 @@ enum ColorConversionCodes
     COLOR_BGR5552GRAY = 31,
 };
 
+void trackingContours(const Mat& src, Mat& dst);
+
+void extractContours(const Mat& src, Mat& dst);
+
 void connectedComponents(const Mat& src, Mat& dst);
 
 void HoughLines(const Mat& src, Mat& dst, uint threshold);
