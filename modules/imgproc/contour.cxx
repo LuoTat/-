@@ -1,13 +1,34 @@
+#include "openHL/imgcodecs.hxx"
 #include "precomp.hxx"
+#include <iostream>
+#include <unordered_set>
 
 namespace hl
 {
+
+struct Vec2iHash
+{
+    std::size_t operator()(const Vec2i& v) const noexcept
+    {
+        return std::hash<int>()(v[0]) ^ std::hash<int>()(v[1]);
+    }
+};
+
+struct Vec2iEqual
+{
+    bool operator()(const Vec2i& v1, const Vec2i& v2) const noexcept
+    {
+        return v1[0] == v2[0] && v1[1] == v2[1];
+    }
+};
 
 static bool isInnerPoint(const Mat& src, int y, int x)
 {
     // 定义方向数组，用于遍历8邻域
     const int dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
     const int dy[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+
+    if (src.at<uchar>(y, x) == 0) return false;    // 如果该点是背景点，则直接返回false
 
     // 遍历8邻域
     for (int i = 0; i < 8; ++i)
@@ -65,12 +86,13 @@ static void nextPoint(const Mat& src, Vec3i& p)
         // 检查邻域像素是否在图像范围内
         if (nx >= 0 && nx < src.cols && ny >= 0 && ny < src.rows)
         {
-            if (src.at<uchar>(ny, nx) == 255)
+            // if (src.at<uchar>(ny, nx) == 255)
+            if (src.at<uchar>(ny, nx) == 255 && !isInnerPoint(src, ny, nx))
             {
                 // 返回下一个边界点
                 p[0] = ny;
                 p[1] = nx;
-                if (p[2] & 1)                  // 如果是奇数方向
+                if (index & 1)                 // 如果是奇数方向
                 {
                     p[2] = (index + 6) & 7;    //顺时针旋转两个方向
                 }
@@ -91,86 +113,32 @@ void trackingContours(const Mat& src, Mat& dst)
 {
     cvtColor(src, dst, COLOR_GRAY2BGR);
 
+    std::unordered_set<Vec2i, Vec2iHash, Vec2iEqual> pointset;
+
     // 寻找起始点
-    Vec3i startPoint;
+    Vec3i p;
     for (int y = 0; y < src.rows; ++y)
     {
         for (int x = 0; x < src.cols; ++x)
         {
-            if (src.at<uchar>(y, x) == 255)
+            if (src.at<uchar>(y, x) == 255 && !isInnerPoint(src, y, x))
             {
-                startPoint = Vec3i(y, x, 5);
-                break;
+                p = Vec3i(y, x, 5);
+
+                // 搜索轮廓
+                do
+                {
+                    if (pointset.contains(Vec2i(p[0], p[1]))) break;
+                    pointset.insert(Vec2i(p[0], p[1]));
+                    dst.at<Vec3b>(p[0], p[1]) = Vec3b(0, 0, 255);
+                    nextPoint(src, p);
+                    if (p == Vec3i(-1, -1, -1)) break;
+                    if (p[0] == y && p[1] == x) break;
+                }
+                while (true);
             }
         }
     }
-
-    Vec3i p = startPoint;
-    // 搜索轮廓
-
-    do
-    {
-        dst.at<Vec3b>(p[0], p[1]) = Vec3b(0, 0, 255);
-        nextPoint(src, p);
-    }
-    while (p != Vec3i(-1, -1, -1) && p != startPoint);
-
-    // // // 创建一个标记矩阵，用于标记已经访问过的像素
-    // // Mat visited(src.rows, src.cols, src.type());
-    // // for (int y = 0; y < visited.rows; ++y)
-    // // {
-    // //     for (int x = 0; x < visited.cols; ++x)
-    // //     {
-    // //         visited.at<uchar>(y, x) = 0;
-    // //     }
-    // // }
-
-
-
-    // // 遍历图像中的每个像素
-    // for (int y = 0; y < src.rows; ++y)
-    // {
-    //     for (int x = 0; x < src.cols; ++x)
-    //     {
-    //         if (src.at<uchar>(y, x) == 0 && visited.at<uchar>(y, x) == 0 && isExternalPoint(src, x, y))
-    //         {    // 只处理边缘外部点
-    //             std::vector<Point> contour;
-    //             std::queue<Point>  q;
-    //             q.push(Point(x, y));
-    //             visited.at<uchar>(y, x) = 1;
-
-    //             while (!q.empty())
-    //             {
-    //                 Point p = q.front();
-    //                 q.pop();
-    //                 contour.push_back(p);
-
-    //                 int dir = p.dir % 2 ? (p.dir + 6) % 8 : (p.dir + 7) % 8;
-
-    //                 // 遍历8邻域
-    //                 for (int i = 0; i < 8; ++i)
-    //                 {
-    //                     int nx = p.x + dx[(dir + i) % 8];
-    //                     int ny = p.y + dy[(dir + i) % 8];
-
-    //                     // 检查邻域像素是否在图像范围内
-    //                     if (nx >= 0 && nx < src.cols && ny >= 0 && ny < src.rows)
-    //                     {
-    //                         if (nx == contour[0].x && ny == contour[0].y) break;
-    //                         // 检查邻域像素是否已经被访问且是外部点
-    //                         if (src.at<uchar>(ny, nx) == 0 && visited.at<uchar>(ny, nx) == 0 && isExternalPoint(src, nx, ny))
-    //                         {
-    //                             visited.at<uchar>(ny, nx) = 1;
-    //                             q.push(Point(nx, ny, (dir + i) % 8));
-    //                         }
-    //                     }
-    //                 }
-    //             }
-
-    //             contours.push_back(contour);
-    //         }
-    //     }
-    // }
 }
 
 }    // namespace hl
